@@ -1,15 +1,15 @@
-CC = gcc
-CFLAGS = 
+CC = g++
+CPPFLAGS = -Wall
 LFLAGS = -Wall -g
 
 SRC_DIR = ./src
 OBJ_DIR = ./build
 BIN_DIR = ./bin
 
-SERVER_SRC := $(wildcard $(SRC_DIR)/server/*.c)
-SERVER_OBJ := $(patsubst $(SRC_DIR)/server/%.c, $(OBJ_DIR)/server/%.o, $(SERVER_SRC))
-CLIENT_SRC := $(wildcard $(SRC_DIR)/client/*.c)
-CLIENT_OBJ := $(patsubst $(SRC_DIR)/client/%.c, $(OBJ_DIR)/client/%.o, $(CLIENT_SRC))
+SERVER_SRC := $(wildcard $(SRC_DIR)/server/*.cpp)
+SERVER_OBJ := $(patsubst $(SRC_DIR)/server/%.cpp, $(OBJ_DIR)/server/%.o, $(SERVER_SRC))
+CLIENT_SRC := $(wildcard $(SRC_DIR)/client/*.cpp)
+CLIENT_OBJ := $(patsubst $(SRC_DIR)/client/%.cpp, $(OBJ_DIR)/client/%.o, $(CLIENT_SRC))
 
 
 all: server client
