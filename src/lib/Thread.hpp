@@ -20,4 +20,4 @@ class Thread {
     virtual void* run() = 0;
 };
 
-#endif
+#endif // __Thread_hpp__
