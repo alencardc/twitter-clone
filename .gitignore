@@ -6,5 +6,5 @@ build
 bin
 
 
-#tests/*
-#!tests/*.test.cpp
+tests/*
+!tests/*.test.cpp
