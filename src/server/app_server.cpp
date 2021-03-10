@@ -1,41 +1,53 @@
-#include <iostream>
+#include <new>
+#include <string>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "lib/Thread.hpp"
 #include "lib/socket/TCPServer.hpp"
+#include "server/WorkItem.hpp"
+#include "server/ConnectionHandler.hpp"
 
-class TestThread : public Thread {
-  private:
-    void* run() {
-      std::cout << "Hello Thread" << std::endl;
-      return NULL;
+using namespace std;
+
+#define N_WORKERS 5
+
+int main(int argc, char** argv) {
+  if (argc != 3) {
+    printf("Invalid parameters. Usage: %s <ip> <port>\n", argv[0]);
+  }
+
+  string ip = argv[1];
+  int port = atoi(argv[2]);
+
+  try {
+    WorkQueue<WorkItem*> queue;
+    for (int i = 0; i < N_WORKERS; i++) {
+      ConnectionHandler* handler = new ConnectionHandler(queue);  
+      handler->start();
     }
-};
 
-int main() {
-  std::cout << "Hello, World!" << std::endl;
-  TestThread* thread1 = new TestThread();
-  thread1->start();
-  thread1->join();
+    TCPServer* server = new TCPServer(ip, port);
+    if (server->start() == false) {
+      printf("Unable to start the server!\n");
+      return 1;
+    }
 
-  TCPServer server("127.0.0.1", 8080);
-  if (server.start() == false) {
-    std::cout << "Unable to start server!\n";
-    return 0;
+    WorkItem* item;
+    while(true) {
+      TCPConnection* connection = server->accept();
+      if (connection == NULL) {
+        printf("Unable to accept a connection!\n");
+        continue;
+      }
+      // Check if should be added a try/catch for bad alloc to wrap work item
+      item = new WorkItem(connection);
+      queue.push(item);
+    }
+
+  } catch (bad_alloc& e) {
+    printf("bad_alloc caught: %s\n", e.what());
   }
-
-  TCPConnection* handle = server.accept();
-  if (handle == NULL) {
-    std::cout << "Unable to accept request!\n";
-    return 0;
-  }
-
-  char buffer[256];
-  int dataSize = handle->receive(buffer, sizeof(buffer));
-  std::cout << dataSize << " bytes received!\n";
-  buffer[dataSize] = '\0';
-  std::cout << "Received: " << std::string(buffer) << std::endl;
-
-  delete handle;
 
   return 0;
 }

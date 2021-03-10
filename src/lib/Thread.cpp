@@ -27,6 +27,6 @@ bool Thread::join() {
   return !m_thread->joinable();
 }
 
-std::thread::id Thread::getId() {
-  return m_thread->get_id();
+long unsigned int Thread::getId() {
+  return (long unsigned int)m_thread->native_handle();
 }

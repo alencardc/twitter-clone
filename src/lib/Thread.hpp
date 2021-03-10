@@ -13,7 +13,7 @@ class Thread {
 
     bool start();
     bool join();
-    std::thread::id getId();
+    long unsigned int getId();
     static void* runThread(Thread* instance);
   
   private:

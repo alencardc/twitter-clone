@@ -9,7 +9,7 @@ class SomeConsumer : public Thread {
   WorkQueue<std::string*>& m_queue;
 
   public:
-    SomeConsumer(int id, WorkQueue<std::string*>& queue) : m_id(id), m_queue(queue){}
+    SomeConsumer(int id, WorkQueue<std::string*>& queue) : m_id(id), m_queue(queue) {}
 
     void* run() {
       for (int i = 0; i < 10; i++) {
