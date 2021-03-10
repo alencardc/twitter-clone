@@ -1,5 +1,10 @@
 .vscode
 **/*.o
 **/*.d
+
 build
 bin
+
+
+#tests/*
+#!tests/*.test.cpp
