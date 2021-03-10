@@ -5,9 +5,9 @@
 
 
 class TCPConnection {
-  int socketDescriptor;
-  std::string ip;
-  int port;
+  int m_socketDescriptor;
+  std::string m_ip;
+  int m_port;
 
   public:
     friend class TCPClient;

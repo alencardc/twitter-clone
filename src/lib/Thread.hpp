@@ -5,7 +5,7 @@
 
 class Thread {
   private: 
-    std::thread* thread;
+    std::thread* m_thread;
 
   public:
     Thread();

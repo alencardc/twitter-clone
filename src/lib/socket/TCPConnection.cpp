@@ -4,27 +4,27 @@
 #include "TCPConnection.hpp"
 
 TCPConnection::TCPConnection(int socket, std::string ipAddress, int portNumber) {
-  socketDescriptor = socket;
-  ip = ipAddress;
-  port = portNumber;
+  m_socketDescriptor = socket;
+  m_ip = ipAddress;
+  m_port = portNumber;
 }
 
 TCPConnection::~TCPConnection() {
-  close(socketDescriptor); // Closes socket of the given descriptor
+  close(m_socketDescriptor); // Closes socket of the given descriptor
 }
 
 std::string TCPConnection::getConnectionIp() {
-  return ip;
+  return m_ip;
 }
 
 int TCPConnection::getConnectionPort() {
-  return port;
+  return m_port;
 }
 
 ssize_t TCPConnection::send(const char* buffer, size_t length) {
-  return ::send(socketDescriptor, buffer, length, 0);
+  return ::send(m_socketDescriptor, buffer, length, 0);
 }
 
 ssize_t TCPConnection::receive(char* buffer, size_t length) {
-  return recv(socketDescriptor, buffer, length, 0);
+  return recv(m_socketDescriptor, buffer, length, 0);
 }

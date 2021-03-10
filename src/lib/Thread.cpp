@@ -4,10 +4,10 @@ Thread::Thread() {
 }
 
 Thread::~Thread() {
-  if (thread->joinable()) {
-    thread->detach();
+  if (m_thread->joinable()) {
+    m_thread->detach();
   }
-  delete thread;
+  delete m_thread;
 }
 
 void* Thread::runThread(Thread* instance) {
@@ -15,18 +15,18 @@ void* Thread::runThread(Thread* instance) {
 }
 
 bool Thread::start() {
-  thread = new std::thread(runThread, this);
+  m_thread = new std::thread(runThread, this);
 
-  return thread->joinable();
+  return m_thread->joinable();
 }
 
 bool Thread::join() {
-  if (thread->joinable()) {
-    thread->join();
+  if (m_thread->joinable()) {
+    m_thread->join();
   }
-  return !thread->joinable();
+  return !m_thread->joinable();
 }
 
 std::thread::id Thread::getId() {
-  return thread->get_id();
+  return m_thread->get_id();
 }

@@ -8,10 +8,10 @@
 
 class TCPServer {
 
-  int listeningSocket;
-  bool listening;
-  std::string ip;
-  int port;
+  int m_listeningSocket;
+  bool m_listening;
+  std::string m_ip;
+  int m_port;
   
   public:
     TCPServer(const std::string serverIp, int portNumber);
