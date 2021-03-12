@@ -15,6 +15,7 @@ using namespace std;
 int main(int argc, char** argv) {
   if (argc != 3) {
     printf("Invalid parameters. Usage: %s <ip> <port>\n", argv[0]);
+    return 0;
   }
 
   string ip = argv[1];

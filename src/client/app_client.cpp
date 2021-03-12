@@ -19,32 +19,26 @@ int main(int argc, char** argv) {
   TCPConnection* connection = client->connect(ip, port);
 
   int length;
-  string msg;
+  string line;
   char buff[256];
-  if (connection) {
-    msg = "Hello, how are you doing? I'm a TCP client!";
-    connection->send(msg.c_str(), msg.size());
-    cout << "[sent]: " << msg << endl;
 
-    length = connection->receive(buff, sizeof(buff));
-    buff[length] = '\0';
-    cout << "[received]: " << buff << endl;
+  bool exit = false;
+  while (exit == false) {
+    getline(cin, line);
 
-    delete connection;
+    if (line.rfind("SEND ", 0) == 0) {
+      connection->send(line.c_str(), line.size());
+      cout << "[sent]: " << line << endl;
+
+      length = connection->receive(buff, sizeof(buff));
+      buff[length] = '\0';
+      cout << "[received]: " << buff << endl;
+    } else if (line.rfind("QUIT", 0) == 0) {
+      exit = true;
+    }
   }
-
-  connection = client->connect(ip, port);
-  if (connection) {
-    msg = "Nice to meet you again!";
-    connection->send(msg.c_str(), msg.size());
-    cout << "[sent]: " << msg << endl;
-
-    length = connection->receive(buff, sizeof(buff));
-    buff[length] = '\0';
-    cout << "[received]: " << buff << endl;
-    
-    delete connection;
-  }
+  
+  delete connection;
 
   return 0;
 }
