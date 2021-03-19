@@ -6,10 +6,11 @@
 #include "server/WorkItem.hpp"
 
 class ConnectionHandler : public Thread {
-  WorkQueue<WorkItem*>& m_queue;
+  TCPConnection* m_connection;
+  
 
   public: 
-    ConnectionHandler(WorkQueue<WorkItem*>& queue);
+    ConnectionHandler(TCPConnection* connection);
 
   private: 
     void* run();

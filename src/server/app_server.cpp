@@ -10,8 +10,6 @@
 
 using namespace std;
 
-#define N_WORKERS 5
-
 int main(int argc, char** argv) {
   if (argc != 3) {
     printf("Invalid parameters. Usage: %s <ip> <port>\n", argv[0]);
@@ -22,11 +20,11 @@ int main(int argc, char** argv) {
   int port = atoi(argv[2]);
 
   try {
-    WorkQueue<WorkItem*> queue;
-    for (int i = 0; i < N_WORKERS; i++) {
-      ConnectionHandler* handler = new ConnectionHandler(queue);  
-      handler->start();
-    }
+    // WorkQueue<WorkItem*> queue;
+    // for (int i = 0; i < N_WORKERS; i++) {
+    //   ConnectionHandler* handler = new ConnectionHandler(queue);
+    //   handler->start();
+    // }
 
     TCPServer* server = new TCPServer(ip, port);
     if (server->start() == false) {
@@ -34,7 +32,6 @@ int main(int argc, char** argv) {
       return 1;
     }
 
-    WorkItem* item;
     while(true) {
       TCPConnection* connection = server->accept();
       if (connection == NULL) {
@@ -42,10 +39,15 @@ int main(int argc, char** argv) {
         continue;
       }
       // Check if should be added a try/catch for bad alloc to wrap work item
-      item = new WorkItem(connection);
-      queue.push(item);
+      try {
+        ConnectionHandler* handler = new ConnectionHandler(connection);
+        handler->start();
+      } catch(bad_alloc& e) {
+        printf("Thread creation: bad_alloc caught: %s\n", e.what());
+      } catch(...) {
+        printf("Thread creation: unknown error.\n");
+      }
     }
-
   } catch (bad_alloc& e) {
     printf("bad_alloc caught: %s\n", e.what());
   }

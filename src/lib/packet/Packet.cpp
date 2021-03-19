@@ -18,8 +18,9 @@ Packet::Packet(PacketType type, const char* payload) {
   m_timestamp = std::time(NULL);
   m_sequenceNumber = -1;
 
+  std::string s = payload;
   m_payload = strdup(payload);
-  m_length = strlen(payload + 1);
+  m_length = s.size();//strlen(payload + 1);
 }
 
 Packet::~Packet() {
