@@ -1,4 +1,6 @@
 #include <unistd.h> // close()
+#include <ctime>
+#include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include "TCPConnection.hpp"
@@ -23,6 +25,13 @@ int TCPConnection::getConnectionPort() {
 
 ssize_t TCPConnection::send(const char* buffer, size_t length) {
   return ::send(m_socketDescriptor, buffer, length, 0);
+}
+
+ssize_t TCPConnection::send(Packet* packet) {
+  packet->m_sequenceNumber = 0; // TODO
+  packet->m_timestamp = std::time(NULL);
+  std::string buffer = packet->serialize();
+  return ::send(m_socketDescriptor, buffer.c_str(), buffer.size(), 0);
 }
 
 ssize_t TCPConnection::receive(char* buffer, size_t length) {

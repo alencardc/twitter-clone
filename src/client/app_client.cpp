@@ -19,6 +19,11 @@ int main(int argc, char** argv) {
   TCPClient* client = new TCPClient();
   TCPConnection* connection = client->connect(ip, port);
 
+  if (connection == NULL) {
+    printf("Unable stablish a connection with the server.\n");
+    return 1;
+  }
+
   int length;
   string line;
   char buff[256];
@@ -28,8 +33,9 @@ int main(int argc, char** argv) {
     getline(cin, line);
 
     if (line.rfind("SEND ", 0) == 0) {
-      Packet
-      connection->send(line.c_str(), line.size());
+      Packet* packet = new Packet(COMMAND, line.c_str());
+      connection->send(packet);
+
       cout << "[sent]: " << line << endl;
 
       length = connection->receive(buff, sizeof(buff));

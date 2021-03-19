@@ -2,6 +2,7 @@
 #define __TCPConnection_hpp__
 
 #include <string>
+#include "lib/packet/Packet.hpp"
 
 
 class TCPConnection {
@@ -17,6 +18,7 @@ class TCPConnection {
     int getConnectionPort();
 
     ssize_t send(const char* buffer, size_t length);
+    ssize_t send(Packet* packet);
     ssize_t receive(char* buffer, size_t length);
 
     ~TCPConnection();

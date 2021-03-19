@@ -17,6 +17,8 @@ class Packet {
   const char* m_payload;
 
   public:
+    friend class TCPConnection;
+
     Packet(PacketType type, Serializable* data);
     Packet(PacketType type, const char* payload);
     ~Packet();
