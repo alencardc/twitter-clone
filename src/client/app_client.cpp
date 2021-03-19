@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include "lib/socket/TCPClient.hpp"
+#include "lib/packet/Packet.hpp"
 
 using namespace std;
 
@@ -27,6 +28,7 @@ int main(int argc, char** argv) {
     getline(cin, line);
 
     if (line.rfind("SEND ", 0) == 0) {
+      Packet
       connection->send(line.c_str(), line.size());
       cout << "[sent]: " << line << endl;
 
