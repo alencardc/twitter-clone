@@ -2,6 +2,7 @@
 #define __CONNECTION_HANDLER_HPP__
 
 #include <string>
+#include <utility>
 #include "lib/Thread.hpp"
 #include "lib/socket/TCPConnection.hpp"
 #include "server/session/SessionManager.hpp"
@@ -16,7 +17,7 @@ class ConnectionHandler : public Thread {
   private: 
     void* run();
 
-    bool authorizeSession();
+    std::pair<std::string, long unsigned int> authorizeSession();
 
 };
 

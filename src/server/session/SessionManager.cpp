@@ -16,17 +16,19 @@ int SessionManager::activeSessionCount(std::string username) {
   return count;
 }
 
-bool SessionManager::startSession(std::string username, int session) {
+bool SessionManager::startSession(std::string username, Session session) {
   m_mutex.lock();
 
   bool success = false;
-  if (m_sessions.count(username) == 1 && m_sessions[username].size() < 2) {
-    m_sessions[username].push_back(session);
-    success = true;
+  if (m_sessions.count(username) == 1) {
+    if (m_sessions[username].size() < 2) {
+      m_sessions[username].push_back(session);
+      success = true;
+    }
   } else {
-    std::list<int> userSessions;
+    std::list<Session> userSessions;
     userSessions.push_back(session);
-    m_sessions.emplace(username, session);
+    m_sessions.emplace(username, userSessions);
     success = true;
   }
 
@@ -35,13 +37,13 @@ bool SessionManager::startSession(std::string username, int session) {
   return success;
 }
 
-void SessionManager::closeSession(std::string username, int id) {
+void SessionManager::closeSession(std::string username, long unsigned int id) {
   m_mutex.lock();
 
   if (m_sessions.count(username) == 1) {
-    if (m_sessions[username].front() == id) {
+    if (m_sessions[username].front().id() == id) {
       m_sessions[username].pop_front();
-    } else if (m_sessions[username].back() == id) {
+    } else if (m_sessions[username].back().id() == id) {
       m_sessions[username].pop_back();
     }
   }

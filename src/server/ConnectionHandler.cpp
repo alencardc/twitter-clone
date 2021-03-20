@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include <iostream>
-#include <string>
 #include "ConnectionHandler.hpp"
 #include "lib/utils/string.hpp"
 
@@ -20,9 +18,11 @@ void* ConnectionHandler::run() {
   char msg[256];
   int length;
 
-  bool authorized = authorizeSession();
+  std::pair<std::string, long unsigned int> sessionToken;
+  sessionToken = authorizeSession();
 
-  if (authorized == true) {
+
+  if (sessionToken.second == getId()) {
     m_connection->send("ok", 3);
     printf("[thread=%lu] session started\n", getId());
     while((length = m_connection->receive(msg, sizeof(msg)-1)) > 0) {
@@ -30,6 +30,8 @@ void* ConnectionHandler::run() {
       m_connection->send(msg, length);
       printf("[thread=%lu] echoed '%s' back\n", getId(), msg);
     }
+
+    m_sessionManager.closeSession(sessionToken.first, sessionToken.second);
   }
 
   printf("[thread=%lu] finished...\n", getId());
@@ -38,7 +40,7 @@ void* ConnectionHandler::run() {
   return NULL;
 }
 
-bool ConnectionHandler::authorizeSession() {
+std::pair<std::string, long unsigned int> ConnectionHandler::authorizeSession() {
   Packet* packet = m_connection->receive();
   
   if (packet != NULL && packet->length() > 0) {
@@ -47,10 +49,12 @@ bool ConnectionHandler::authorizeSession() {
       std::string username = removePrefix(payload, "LOGIN ");
       
       printf("[thread=%lu] attempt to start session as: %s\n", getId(), username.c_str());
-      bool isStarted = m_sessionManager.startSession(username, 1);
-      return isStarted;
+      bool isStarted = m_sessionManager.startSession(username, Session(getId(), username));
+      if (isStarted) {
+        return std::make_pair(username, getId());
+      }
     }
   }
   printf("[thread=%lu] bad request to start session\n", getId());
-  return false;
+  return std::make_pair("", 0);
 }

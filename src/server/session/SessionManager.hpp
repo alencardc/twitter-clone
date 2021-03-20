@@ -4,9 +4,10 @@
 #include <mutex>
 #include <unordered_map>
 #include <list>
+#include "Session.hpp"
 
 class SessionManager {
-  std::unordered_map<std::string, std::list<int>> m_sessions;
+  std::unordered_map<std::string, std::list<Session>> m_sessions;
 
   std::mutex m_mutex;
 
@@ -15,8 +16,8 @@ class SessionManager {
     ~SessionManager();
 
     int activeSessionCount(std::string username);
-    bool startSession(std::string username, int session);
-    void closeSession(std::string username, int id);
+    bool startSession(std::string username, Session session);
+    void closeSession(std::string username, long unsigned int id);
 };
 
 #endif // __Session_Manager_hpp__
