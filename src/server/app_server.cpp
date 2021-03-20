@@ -5,8 +5,8 @@
 
 #include "lib/Thread.hpp"
 #include "lib/socket/TCPServer.hpp"
-#include "server/WorkItem.hpp"
 #include "server/ConnectionHandler.hpp"
+#include "server/session/SessionManager.hpp"
 
 using namespace std;
 
@@ -20,36 +20,32 @@ int main(int argc, char** argv) {
   int port = atoi(argv[2]);
 
   try {
-    // WorkQueue<WorkItem*> queue;
-    // for (int i = 0; i < N_WORKERS; i++) {
-    //   ConnectionHandler* handler = new ConnectionHandler(queue);
-    //   handler->start();
-    // }
-
     TCPServer* server = new TCPServer(ip, port);
     if (server->start() == false) {
-      printf("Unable to start the server!\n");
+      printf("[error] Unable to start the server!\n");
       return 1;
     }
 
+    printf("[info] Server started! Listening at %s:%d\n", ip.c_str(), port);
+    SessionManager sessionManager;
     while(true) {
       TCPConnection* connection = server->accept();
       if (connection == NULL) {
-        printf("Unable to accept a connection!\n");
+        printf("[error] Unable to accept a connection!\n");
         continue;
       }
       // Check if should be added a try/catch for bad alloc to wrap work item
       try {
-        ConnectionHandler* handler = new ConnectionHandler(connection);
+        ConnectionHandler* handler = new ConnectionHandler(connection, sessionManager);
         handler->start();
       } catch(bad_alloc& e) {
-        printf("Thread creation: bad_alloc caught: %s\n", e.what());
+        printf("[error] Thread creation: bad_alloc caught: %s\n", e.what());
       } catch(...) {
-        printf("Thread creation: unknown error.\n");
+        printf("[error] Thread creation: unknown error.\n");
       }
     }
   } catch (bad_alloc& e) {
-    printf("bad_alloc caught: %s\n", e.what());
+    printf("[error] bad_alloc caught: %s\n", e.what());
   }
 
   return 0;

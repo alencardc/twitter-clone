@@ -20,6 +20,7 @@ class TCPConnection {
     ssize_t send(const char* buffer, size_t length);
     ssize_t send(Packet* packet);
     ssize_t receive(char* buffer, size_t length);
+    Packet* receive();
 
     ~TCPConnection();
   

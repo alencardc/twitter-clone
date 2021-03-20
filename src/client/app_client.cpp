@@ -9,12 +9,13 @@ using namespace std;
 // "127.0.0.1", 8080
 
 int main(int argc, char** argv) {
-  if (argc != 3) {
-    cout << "Invalid parameters. Usage: " << argv[0] << "<ip> <port>" << endl;
+  if (argc != 4) {
+    cout << "Invalid parameters. Usage: " << argv[0] << "<ip> <port> <username>" << endl;
   }
 
   string ip = argv[1];
   int port = atoi(argv[2]);
+  string username = argv[3];
 
   TCPClient* client = new TCPClient();
   TCPConnection* connection = client->connect(ip, port);
@@ -23,24 +24,43 @@ int main(int argc, char** argv) {
     printf("Unable stablish a connection with the server.\n");
     return 1;
   }
+  
+  string line = "LOGIN " + username;
+  Packet loginPacket = Packet(COMMAND, line.c_str());
+  connection->send(&loginPacket);
 
   int length;
-  string line;
   char buff[256];
+  length = connection->receive(buff, sizeof(buff));
+  buff[length] = '\0';
+  line = buff;
+  if (length > 0 && line == "ok") {
+    printf("Logged in as: %s\n", username.c_str());
+  } else {
+    printf("Unable to login\n");
+    delete connection;
+
+    return 0;
+  }
+
 
   bool exit = false;
   while (exit == false) {
     getline(cin, line);
 
     if (line.rfind("SEND ", 0) == 0) {
-      Packet* packet = new Packet(COMMAND, line.c_str());
-      connection->send(packet);
+      Packet packet = Packet(COMMAND, line.c_str());
+      connection->send(&packet);
 
       cout << "[sent]: " << line << endl;
 
       length = connection->receive(buff, sizeof(buff));
-      buff[length] = '\0';
-      cout << "[received]: " << buff << endl;
+      if (length == 0) {
+        printf("Connection lost. Unable to reach the server.\n");
+      } else {
+        buff[length] = '\0';
+        cout << "[received]: " << buff << endl;
+      }
     } else if (line.rfind("QUIT", 0) == 0) {
       exit = true;
     }

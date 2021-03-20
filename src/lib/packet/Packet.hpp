@@ -7,6 +7,7 @@
 enum PacketType {
   DATA,
   COMMAND,
+  NO_TYPE,
 };
 
 class Packet {
@@ -23,10 +24,16 @@ class Packet {
     Packet(PacketType type, const char* payload);
     ~Packet();
 
+    const char* payload();
+    int length();
+
     std::string serialize();
+    static Packet* deserialize(const char* rawData);
 
   private:
-    const char* typeToString(PacketType type);
+    Packet(int length, PacketType type, int sequenceNumber, long unsigned int timestamp, const char* payload);
+    static const char* typeToString(PacketType type);
+    static PacketType stringToType(const char* buffer);
 };
 
 #endif // __Packet_hpp__

@@ -37,3 +37,13 @@ ssize_t TCPConnection::send(Packet* packet) {
 ssize_t TCPConnection::receive(char* buffer, size_t length) {
   return recv(m_socketDescriptor, buffer, length, 0);
 }
+
+Packet* TCPConnection::receive() {
+  char buffer[1024];
+  int length = recv(m_socketDescriptor, buffer, sizeof(buffer)-1, 0);
+  if (length > 0) {
+    buffer[length] = '\0';
+    return Packet::deserialize(buffer);
+  }
+  return NULL;
+}
