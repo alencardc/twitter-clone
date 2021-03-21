@@ -6,7 +6,9 @@
 
 enum PacketType {
   DATA,
-  COMMAND,
+  SEND,
+  LOGIN,
+  FOLLOW,
   NO_TYPE,
 };
 
@@ -26,6 +28,7 @@ class Packet {
 
     const char* payload();
     int length();
+    PacketType type();
 
     std::string serialize();
     static Packet* deserialize(const char* rawData);

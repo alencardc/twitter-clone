@@ -43,16 +43,13 @@ void* ConnectionHandler::run() {
 std::pair<std::string, long unsigned int> ConnectionHandler::authorizeSession() {
   Packet* packet = m_connection->receive();
   
-  if (packet != NULL && packet->length() > 0) {
-    std::string payload = packet->payload();
-    if (hasPrefix(payload, "LOGIN ") == true) {
-      std::string username = removePrefix(payload, "LOGIN ");
-      
-      printf("[thread=%lu] attempt to start session as: %s\n", getId(), username.c_str());
-      bool isStarted = m_sessionManager.startSession(username, Session(getId(), username));
-      if (isStarted) {
-        return std::make_pair(username, getId());
-      }
+  if (packet != NULL && packet->length() > 0 && packet->type() == LOGIN) {
+    std::string username = packet->payload();
+    
+    printf("[thread=%lu] attempt to start session as: %s\n", getId(), username.c_str());
+    bool isStarted = m_sessionManager.startSession(username, Session(getId(), username));
+    if (isStarted) {
+      return std::make_pair(username, getId());
     }
   }
   printf("[thread=%lu] bad request to start session\n", getId());

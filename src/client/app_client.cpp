@@ -25,10 +25,10 @@ int main(int argc, char** argv) {
     return 1;
   }
   
-  string line = "LOGIN " + username;
-  Packet loginPacket = Packet(COMMAND, line.c_str());
+  Packet loginPacket = Packet(LOGIN, username.c_str());
   connection->send(&loginPacket);
 
+  string line;
   int length;
   char buff[256];
   length = connection->receive(buff, sizeof(buff));
@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
     getline(cin, line);
 
     if (line.rfind("SEND ", 0) == 0) {
-      Packet packet = Packet(COMMAND, line.c_str());
+      Packet packet = Packet(SEND, line.c_str());
       connection->send(&packet);
 
       cout << "[sent]: " << line << endl;

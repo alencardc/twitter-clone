@@ -47,6 +47,10 @@ int Packet::length() {
   return m_length;
 }
 
+PacketType Packet::type() {
+  return m_type;
+}
+
 std::string Packet::serialize() {
   std::stringstream rawPacket;
   rawPacket << "type:" << typeToString(m_type) ;
@@ -82,8 +86,12 @@ Packet* Packet::deserialize(const char* rawData) {
 
 const char* Packet::typeToString(PacketType type) {
   switch (type) {
-    case COMMAND:
-      return "COMMAND";
+    case SEND:
+      return "SEND";
+    case FOLLOW:
+      return "FOLLOW";
+    case LOGIN:
+      return "LOGIN";
     case DATA:
       return "DATA";
     default:
@@ -93,8 +101,12 @@ const char* Packet::typeToString(PacketType type) {
 
 PacketType Packet::stringToType(const char* buffer) {
   std::string s = buffer;
-  if (s == "COMMAND")
-    return COMMAND;
+  if (s == "SEND")
+    return SEND;
+  else if (s == "FOLLOW")
+    return FOLLOW;
+  else if (s == "LOGIN")
+    return LOGIN;
   else if (s == "DATA")
     return DATA;
   else 
