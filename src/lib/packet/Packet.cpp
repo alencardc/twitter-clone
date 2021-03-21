@@ -10,7 +10,8 @@ Packet::Packet(PacketType type, Serializable* data) {
   m_timestamp = std::time(NULL);
   m_sequenceNumber = -1;
 
-  std::string payload = data->serialize();
+
+  std::string payload = data == NULL ? "" : data->serialize();
   m_payload = strdup(payload.c_str());
   m_length = payload.size();
 }
@@ -92,6 +93,10 @@ const char* Packet::typeToString(PacketType type) {
       return "FOLLOW";
     case LOGIN:
       return "LOGIN";
+    case OK:
+      return "OK";
+    case ERROR:
+      return "ERROR";
     case DATA:
       return "DATA";
     default:
@@ -107,6 +112,10 @@ PacketType Packet::stringToType(const char* buffer) {
     return FOLLOW;
   else if (s == "LOGIN")
     return LOGIN;
+  else if (s == "OK")
+    return OK;
+  else if (s == "ERROR")
+    return ERROR;
   else if (s == "DATA")
     return DATA;
   else 

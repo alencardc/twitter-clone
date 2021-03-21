@@ -23,8 +23,10 @@ void* ConnectionHandler::run() {
 
 
   if (sessionToken.second == getId()) {
-    m_connection->send("ok", 3);
+    Packet packet = Packet(OK, "");
+    m_connection->send(&packet);
     printf("[thread=%lu] session started\n", getId());
+
     while((length = m_connection->receive(msg, sizeof(msg)-1)) > 0) {
       msg[length] = '\0';
       m_connection->send(msg, length);

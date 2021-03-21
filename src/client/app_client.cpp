@@ -28,14 +28,10 @@ int main(int argc, char** argv) {
   Packet loginPacket = Packet(LOGIN, username.c_str());
   connection->send(&loginPacket);
 
-  string line;
-  int length;
-  char buff[256];
-  length = connection->receive(buff, sizeof(buff));
-  buff[length] = '\0';
-  line = buff;
-  if (length > 0 && line == "ok") {
+  Packet* packet = connection->receive();
+  if (packet->type() == OK) {
     printf("Logged in as: %s\n", username.c_str());
+    delete packet;
   } else {
     printf("Unable to login\n");
     delete connection;
@@ -43,6 +39,9 @@ int main(int argc, char** argv) {
     return 0;
   }
 
+  string line;
+  int length;
+  char buff[256];
 
   bool exit = false;
   while (exit == false) {
