@@ -31,40 +31,37 @@ int main(int argc, char** argv) {
   Packet* packet = connection->receive();
   if (packet->type() == OK) {
     printf("Logged in as: %s\n", username.c_str());
-    delete packet;
-  } else {
-    printf("Unable to login\n");
-    delete connection;
 
-    return 0;
-  }
+    string line;
+    int length;
+    char buff[256];
 
-  string line;
-  int length;
-  char buff[256];
+    bool exit = false;
+    while (exit == false) {
+      getline(cin, line);
 
-  bool exit = false;
-  while (exit == false) {
-    getline(cin, line);
+      if (line.rfind("SEND ", 0) == 0) {
+        Packet packet = Packet(SEND, line.c_str());
+        connection->send(&packet);
 
-    if (line.rfind("SEND ", 0) == 0) {
-      Packet packet = Packet(SEND, line.c_str());
-      connection->send(&packet);
+        cout << "[sent]: " << line << endl;
 
-      cout << "[sent]: " << line << endl;
-
-      length = connection->receive(buff, sizeof(buff));
-      if (length == 0) {
-        printf("Connection lost. Unable to reach the server.\n");
-      } else {
-        buff[length] = '\0';
-        cout << "[received]: " << buff << endl;
+        length = connection->receive(buff, sizeof(buff));
+        if (length == 0) {
+          printf("Connection lost. Unable to reach the server.\n");
+        } else {
+          buff[length] = '\0';
+          cout << "[received]: " << buff << endl;
+        }
+      } else if (line.rfind("QUIT", 0) == 0) {
+        exit = true;
       }
-    } else if (line.rfind("QUIT", 0) == 0) {
-      exit = true;
     }
+  } else {
+    printf("Unable to login: %s\n", packet->payload());
   }
-  
+
+  delete packet;
   delete connection;
 
   return 0;

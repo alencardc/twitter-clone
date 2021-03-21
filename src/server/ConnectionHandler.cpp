@@ -34,6 +34,9 @@ void* ConnectionHandler::run() {
     }
 
     m_sessionManager.closeSession(sessionToken.first, sessionToken.second);
+  } else {
+    Packet packet = Packet(ERROR, "Connection refused.");
+    m_connection->send(&packet);
   }
 
   printf("[thread=%lu] finished...\n", getId());
