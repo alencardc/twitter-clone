@@ -31,6 +31,7 @@ class Packet {
     const char* payload();
     int length();
     PacketType type();
+    std::string typeString();
 
     std::string serialize();
     static Packet* deserialize(const char* rawData);

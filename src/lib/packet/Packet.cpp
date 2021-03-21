@@ -52,6 +52,10 @@ PacketType Packet::type() {
   return m_type;
 }
 
+std::string Packet::typeString() {
+  return typeToString(m_type);
+}
+
 std::string Packet::serialize() {
   std::stringstream rawPacket;
   rawPacket << "type:" << typeToString(m_type) ;
@@ -82,7 +86,7 @@ Packet* Packet::deserialize(const char* rawData) {
     }
   }
   
-  return NULL;
+  return new Packet(NO_TYPE, "Unable to parse. Bad request.");
 }
 
 const char* Packet::typeToString(PacketType type) {

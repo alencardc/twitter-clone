@@ -1,6 +1,8 @@
 #include <stdio.h>
-#include "ConnectionHandler.hpp"
 #include "lib/utils/string.hpp"
+#include "ConnectionHandler.hpp"
+#include "routes/FollowRoute.hpp"
+#include "routes/SendTweetRoute.hpp"
 
 using namespace std;
 
@@ -15,28 +17,42 @@ ConnectionHandler::ConnectionHandler(
 void* ConnectionHandler::run() {
   printf("[thread=%lu] started...\n", getId());
 
-  char msg[256];
-  int length;
-
   std::pair<std::string, long unsigned int> sessionToken;
   sessionToken = authorizeSession();
 
 
   if (sessionToken.second == getId()) {
-    Packet packet = Packet(OK, "");
-    m_connection->send(&packet);
+    Packet* response = new Packet(OK, "");
+    m_connection->send(response);
+    delete response;
     printf("[thread=%lu] session started\n", getId());
 
-    while((length = m_connection->receive(msg, sizeof(msg)-1)) > 0) {
-      msg[length] = '\0';
-      m_connection->send(msg, length);
-      printf("[thread=%lu] echoed '%s' back\n", getId(), msg);
+    Packet* request;
+    while((request = m_connection->receive()) != NULL) {
+      printf("[thread=%lu] received a %s request\n", getId(), request->typeString().c_str());
+      if (request->type() == SEND) {
+        SendTweetRoute route = SendTweetRoute(*request);
+        response = route.execute();
+      } else if (request->type() == FOLLOW) {
+        FollowRoute route = FollowRoute(*request);
+        response = route.execute();
+      } else if (request->type() == LOGIN) {
+        response = new Packet(ERROR, "Already logged in.");
+      } else { // OK, ERROR, NO_TYPE or undefined
+        response = new Packet(ERROR, "Bad request.");
+      }
+
+      printf("[thread=%lu] sent a %s response\n", getId(), response->typeString().c_str());
+      m_connection->send(response);
+
+      delete request;
+      delete response;
     }
 
     m_sessionManager.closeSession(sessionToken.first, sessionToken.second);
   } else {
-    Packet packet = Packet(ERROR, "Connection refused.");
-    m_connection->send(&packet);
+    Packet response = Packet(ERROR, "Connection refused.");
+    m_connection->send(&response);
   }
 
   printf("[thread=%lu] finished...\n", getId());
