@@ -5,14 +5,16 @@
 #include <utility>
 #include "lib/Thread.hpp"
 #include "lib/socket/TCPConnection.hpp"
-#include "server/session/SessionManager.hpp"
+#include "server/profile/ProfileManager.hpp"
 
 class ConnectionHandler : public Thread {
   TCPConnection* m_connection;
-  SessionManager& m_sessionManager;
+  ProfileManager& m_profileManager;
 
   public: 
-    ConnectionHandler(TCPConnection* connection, SessionManager& manager);
+    ConnectionHandler(
+      TCPConnection* connection,
+      ProfileManager& profileManager);
 
   private: 
     void* run();

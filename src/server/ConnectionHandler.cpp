@@ -8,10 +8,10 @@ using namespace std;
 
 ConnectionHandler::ConnectionHandler(
   TCPConnection* connection,
-  SessionManager& manager
+  ProfileManager& profileManager
 ): 
   m_connection(connection),
-  m_sessionManager(manager)
+  m_profileManager(profileManager)
 {};
 
 void* ConnectionHandler::run() {
@@ -34,7 +34,7 @@ void* ConnectionHandler::run() {
         SendTweetRoute route = SendTweetRoute(*request);
         response = route.execute();
       } else if (request->type() == FOLLOW) {
-        FollowRoute route = FollowRoute(*request);
+        FollowRoute route = FollowRoute(*request, m_profileManager);
         response = route.execute();
       } else if (request->type() == LOGIN) {
         response = new Packet(ERROR, "Already logged in.");
@@ -49,7 +49,7 @@ void* ConnectionHandler::run() {
       delete response;
     }
 
-    m_sessionManager.closeSession(sessionToken.first, sessionToken.second);
+    m_profileManager.closeSession(sessionToken.first, sessionToken.second);
   } else {
     Packet response = Packet(ERROR, "Connection refused.");
     m_connection->send(&response);
@@ -68,7 +68,7 @@ std::pair<std::string, long unsigned int> ConnectionHandler::authorizeSession() 
     std::string username = packet->payload();
     
     printf("[thread=%lu] attempt to start session as: %s\n", getId(), username.c_str());
-    bool isStarted = m_sessionManager.startSession(username, Session(getId(), username));
+    bool isStarted = m_profileManager.startSession(username, Session(getId(), username));
     if (isStarted) {
       return std::make_pair(username, getId());
     }
