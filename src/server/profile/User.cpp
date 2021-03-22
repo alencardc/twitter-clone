@@ -1,4 +1,4 @@
-
+#include <algorithm>
 #include "User.hpp"
 
 User::User() {
@@ -27,6 +27,25 @@ std::string User::username() {
 // Check if reference or copy
 std::list<std::string> User::followers() {
   return m_followers;
+}
+
+bool User::follow(std::string userToFollow) {
+  if (m_username == userToFollow) {
+    return false;
+  }
+
+  m_followers.sort();
+  bool alreadyFollow = std::binary_search(
+    m_followers.begin(),
+    m_followers.end(),
+    userToFollow);
+
+  if (alreadyFollow == true) {
+    return false;
+  }
+
+  m_followers.push_back(userToFollow);
+  return true;
 }
 
 int User::sessionCount() {

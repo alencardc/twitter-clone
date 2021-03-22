@@ -34,7 +34,7 @@ void* ConnectionHandler::run() {
         SendTweetRoute route = SendTweetRoute(*request);
         response = route.execute();
       } else if (request->type() == FOLLOW) {
-        FollowRoute route = FollowRoute(*request, m_profileManager);
+        FollowRoute route = FollowRoute(sessionToken.first, *request, m_profileManager);
         response = route.execute();
       } else if (request->type() == LOGIN) {
         response = new Packet(ERROR, "Already logged in.");

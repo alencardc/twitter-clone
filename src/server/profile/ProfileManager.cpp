@@ -3,6 +3,27 @@
 ProfileManager::ProfileManager() {}
 ProfileManager::~ProfileManager() {}
 
+bool ProfileManager::userExists(std::string username) {
+  m_mutex.lock();
+
+  bool exists = m_users.count(username) == 1;
+
+  m_mutex.unlock();
+  return exists;
+}
+
+bool ProfileManager::follow(std::string follower, std::string userToFollow) {
+  m_mutex.lock();
+
+  bool success = false;
+  if (m_users.count(follower) == 1 && m_users.count(userToFollow) == 1) {
+    success = m_users[follower].follow(userToFollow);
+  }
+
+  m_mutex.unlock();
+  return success;
+}
+
 int ProfileManager::activeSessionCount(std::string username) {
   m_mutex.lock();
 

@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <stdlib.h>
+#include "lib/utils/string.hpp"
 #include "lib/socket/TCPClient.hpp"
 #include "lib/packet/Packet.hpp"
 
@@ -41,7 +42,20 @@ int main(int argc, char** argv) {
       getline(cin, line);
 
       if (line.rfind("SEND ", 0) == 0) {
-        Packet packet = Packet(SEND, line.c_str());
+        Packet packet = Packet(SEND, removePrefix(line, "SEND ").c_str());
+        connection->send(&packet);
+
+        cout << "[sent]: " << line << endl;
+
+        length = connection->receive(buff, sizeof(buff));
+        if (length == 0) {
+          printf("Connection lost. Unable to reach the server.\n");
+        } else {
+          buff[length] = '\0';
+          cout << "[received]: " << buff << endl;
+        }
+      } else if (line.rfind("FOLLOW", 0) == 0) {
+        Packet packet = Packet(FOLLOW, removePrefix(line, "FOLLOW ").c_str());
         connection->send(&packet);
 
         cout << "[sent]: " << line << endl;
