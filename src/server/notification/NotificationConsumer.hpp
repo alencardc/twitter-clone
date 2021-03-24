@@ -11,7 +11,7 @@ class NotificationConsumer: public Thread {
   TCPConnection* m_connection;
   std::string m_username;
   NotificationManager& m_notificationManager;
-  Queue<PendingNotification> m_queue;
+  Queue<Notification> m_queue;
 
   bool m_shouldStop;
   std::mutex m_mutex;

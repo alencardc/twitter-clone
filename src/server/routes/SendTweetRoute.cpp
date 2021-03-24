@@ -11,7 +11,7 @@ Packet* SendTweetRoute::execute() {
   Notification notification;
   notification.id = 1;
   notification.message = message;
-  notification.pendingCount = 2;
+  notification.pendingCount = 10;
   notification.timestamp = 0;
   notification.username = m_username;
 

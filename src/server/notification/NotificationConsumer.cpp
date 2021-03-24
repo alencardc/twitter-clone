@@ -22,36 +22,27 @@ void* NotificationConsumer::run() {
   while(shouldStop() == false) {
     //printf("[thread=%lu][Consumer][%s] waiting...\n", getId(), m_username.c_str());
 
-    auto pendingOrError = m_queue.tryRemoveFor(1500);
+    auto notificationOrError = m_queue.tryRemoveFor(1500);
 
-    if (pendingOrError.first == true) {
-      PendingNotification pending = pendingOrError.second;
+    if (notificationOrError.first == true) {
+      Notification notification = notificationOrError.second;
       printf("[thread=%lu][Consumer][%s] removed: <@%s, %d>\n",
         getId(),
         m_username.c_str(),
-        pending.sender.c_str(),
-        pending.notificationId
+        notification.username.c_str(),
+        notification.id
       );
 
-      auto notificationOrError = m_notificationManager.readNotification(pending);
-      if (notificationOrError.first == true) {
-        Packet packet = Packet(DATA, &notificationOrError.second);
-        m_connection->send(&packet);
+      Packet packet = Packet(DATA, &notificationOrError.second);
+      m_connection->send(&packet);
 
-        printf("[thread=%lu][Consumer][%s] sent: <@%s, %d>\n", 
-          getId(),
-          m_username.c_str(),
-          pending.sender.c_str(),
-          pending.notificationId
-        );
-      } else {
-        printf("[thread=%lu][Consumer][%s] not found: <@%s, %d>\n", 
-          getId(),
-          m_username.c_str(),
-          pending.sender.c_str(),
-          pending.notificationId
-        );
-      }
+      printf("[thread=%lu][Consumer][%s] sent: <@%s, %d>\n", 
+        getId(),
+        m_username.c_str(),
+        notification.username.c_str(),
+        notification.id
+      );
+      
     }
 
   }

@@ -7,20 +7,28 @@ void NotificationManager::send(
 ) {
   m_mutex.lock();
   if (createNotification(notification) == true) {
+    // Reference to the notification inserted in the list for username
+    Notification& notificationRef = m_notifications[notification.username].back();
     for (std::string follower : followers) {
       if (m_pendingQueues.count(follower) == 1) {
-        PendingNotification pending(notification.username, notification.id);
-        m_pendingQueues[follower].insert(pending);
+        bool wasSent = m_pendingQueues[follower].insert(notification);
+        if (wasSent == true) {
+          notificationRef.pendingCount -= 1;
+        }
       }
+    }
+
+    if (notificationRef.pendingCount <= 0) {
+      // Notification was sent to every follower, so it can be removed from list.
+      m_notifications[notification.username].pop_back(); 
     }
   }
   m_mutex.unlock();
 }
 
-std::pair<bool, Notification> NotificationManager::readNotification(
+std::pair<bool, Notification> NotificationManager::findNotification(
   PendingNotification pending
 ) {
-  m_mutex.lock();
   bool success = false;
   Notification result = Notification();
 
@@ -41,20 +49,29 @@ std::pair<bool, Notification> NotificationManager::readNotification(
       }
     }
   }
-  m_mutex.unlock();
   return std::make_pair(success, result);
 }
 
 void NotificationManager::subscribe(
   std::string username,
   long unsigned id,
-  Queue<PendingNotification>& queue
+  Queue<Notification>& queue
 ) {
   m_mutex.lock();
 
   if (m_pendingQueues.count(username) == 1) {
     m_pendingQueues[username].subscribe(id, queue);
-  } else { // CHECAR SE ESSE LUGAR ESTA CORRETO PARA ADICAO DE NOVOS USUARIOS
+
+    while (m_pendingQueues[username].hasPending() == true) {
+      PendingNotification pending = m_pendingQueues[username].removePending();
+      if (m_notifications.count(pending.sender) == 1) {
+        auto notificationOrError = findNotification(pending);
+        if (notificationOrError.first == true) {
+          m_pendingQueues[username].insertToSubscribers(notificationOrError.second);
+        }
+      }
+    }
+  } else {
     std::list<Notification> list = std::list<Notification>();
     NotificationQueue notificationQueue = NotificationQueue();
     m_notifications.emplace(username, list);

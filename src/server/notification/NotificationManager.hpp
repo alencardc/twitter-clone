@@ -16,17 +16,17 @@ class NotificationManager {
   public:
     void send(Notification notification, std::list<std::string> followers);
 
-    std::pair<bool, Notification> readNotification(PendingNotification pending);
 
     void subscribe(
       std::string username,
       long unsigned id,
-      Queue<PendingNotification>& queue
+      Queue<Notification>& queue
     );
 
     void unsubscribe(std::string username, long unsigned id);
 
   private:
+    std::pair<bool, Notification> findNotification(PendingNotification pending);
     bool createNotification(Notification notification);
 
 };
