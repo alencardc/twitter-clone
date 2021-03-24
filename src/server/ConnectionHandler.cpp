@@ -49,7 +49,12 @@ void* ConnectionHandler::run() {
         request->typeString().c_str()
       );
       if (request->type() == SEND) {
-        SendTweetRoute route = SendTweetRoute(sessionToken.first, *request, m_notificationManager);
+        SendTweetRoute route = SendTweetRoute(
+          sessionToken.first, 
+          *request,
+          m_notificationManager,
+          m_profileManager
+        );
         response = route.execute();
       } else if (request->type() == FOLLOW) {
         FollowRoute route = FollowRoute(sessionToken.first, *request, m_profileManager);

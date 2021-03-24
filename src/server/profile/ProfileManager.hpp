@@ -16,6 +16,7 @@ class ProfileManager {
 
     bool userExists(std::string username);
     bool follow(std::string follower, std::string userToFollow);
+    std::list<std::string> followersOf(std::string username);
 
     int activeSessionCount(std::string username);
     bool startSession(std::string username, Session session);

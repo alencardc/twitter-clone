@@ -13,9 +13,12 @@ class NotificationManager {
 
   std::mutex m_mutex;
 
-  public:
-    void send(Notification notification, std::list<std::string> followers);
+  unsigned int m_nextId;
 
+  public:
+    NotificationManager();
+
+    void send(Notification notification, std::list<std::string> followers);
 
     void subscribe(
       std::string username,
@@ -26,8 +29,9 @@ class NotificationManager {
     void unsubscribe(std::string username, long unsigned id);
 
   private:
+    unsigned int getNextId();
     std::pair<bool, Notification> findNotification(PendingNotification pending);
-    bool createNotification(Notification notification);
+    bool createNotification(Notification& notification);
 
 };
 

@@ -1,9 +1,10 @@
 #include <sstream>
+#include <time.h>
 #include "Notification.hpp"
 
 Notification::Notification() :
   id(-1),
-  timestamp(0),
+  timestamp(time(NULL)),
   username(""),
   pendingCount(-1),
   message("")

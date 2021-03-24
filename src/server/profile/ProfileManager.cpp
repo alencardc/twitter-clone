@@ -24,6 +24,19 @@ bool ProfileManager::follow(std::string follower, std::string userToFollow) {
   return success;
 }
 
+std::list<std::string> ProfileManager::followersOf(std::string username) {
+  m_mutex.lock();
+
+  std::list<std::string> followers;
+  if (m_users.count(username) == 1) {
+    followers = m_users[username].followers();
+  }
+
+  m_mutex.unlock();
+
+  return followers;
+}
+
 int ProfileManager::activeSessionCount(std::string username) {
   m_mutex.lock();
 

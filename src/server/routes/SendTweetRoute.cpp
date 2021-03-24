@@ -1,25 +1,27 @@
 #include "SendTweetRoute.hpp"
 
-SendTweetRoute::SendTweetRoute(std::string username, Packet& request, NotificationManager& manager):
+SendTweetRoute::SendTweetRoute(
+  std::string username,
+  Packet& request,
+  NotificationManager& notificationManager,
+  ProfileManager& profileManager
+):
   m_username(username),
   m_request(request),
-  m_manager(manager)
+  m_notificationManager(notificationManager),
+  m_profileManager(profileManager)
 {}
 
 Packet* SendTweetRoute::execute() {
   std::string message = m_request.payload();
   Notification notification;
-  notification.id = 1;
   notification.message = message;
-  notification.pendingCount = 10;
-  notification.timestamp = 0;
   notification.username = m_username;
 
-  std::list<std::string> followers;
-  followers.push_back("alencar1");
-  followers.push_back("alencar2");
-  followers.push_back("alencar3");
-  m_manager.send(notification, followers);
+  std::list<std::string> followers = m_profileManager.followersOf(m_username);
+  notification.pendingCount = followers.size();
 
-  return new Packet(OK, ("Sent message: " + message).c_str());
+  m_notificationManager.send(notification, followers);
+
+  return new Packet(OK, ("Sent message: <" + message + "> for " + std::to_string(followers.size())).c_str());
 }

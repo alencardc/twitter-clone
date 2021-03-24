@@ -1,6 +1,14 @@
 #include <algorithm>
 #include "NotificationManager.hpp"
 
+NotificationManager::NotificationManager(): m_nextId(1) {}
+
+unsigned int NotificationManager::getNextId() {
+  unsigned currentId = m_nextId;
+  m_nextId += 1;
+  return currentId;
+}
+
 void NotificationManager::send(
   Notification notification, 
   std::list<std::string> followers
@@ -91,11 +99,11 @@ void NotificationManager::unsubscribe(std::string username, long unsigned id) {
 }
 
 
-bool NotificationManager::createNotification(Notification notification) {
-  bool success = false;
+bool NotificationManager::createNotification(Notification& notification) {
   if (m_notifications.count(notification.username) == 1) {
+    notification.id = getNextId();
     m_notifications[notification.username].push_back(notification);
-    success = true;
+    return true;
   }
-  return success;
+  return false;
 }
