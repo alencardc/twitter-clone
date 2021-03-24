@@ -18,25 +18,36 @@ ConnectionHandler::ConnectionHandler(
 {};
 
 void* ConnectionHandler::run() {
-  printf("[thread=%lu] started...\n", getId());
+  printf("[thread=%lu][Producer][] started...\n", getId());
 
   std::pair<std::string, long unsigned int> sessionToken;
   sessionToken = authorizeSession();
 
 
   if (sessionToken.second == getId()) {
-    NotificationConsumer* consumerThread = new NotificationConsumer(m_connection, sessionToken.first, m_notificationManager);
+    NotificationConsumer* consumerThread = new NotificationConsumer(
+      m_connection, 
+      sessionToken.first, 
+      m_notificationManager
+    );
     consumerThread->start();
 
 
     Packet* response = new Packet(OK, "");
     m_connection->send(response);
     delete response;
-    printf("[thread=%lu] session started\n", getId());
+    printf("[thread=%lu][Producer][%s] session started\n",
+      getId(),
+      sessionToken.first.c_str()
+    );
 
     Packet* request;
     while((request = m_connection->receive()) != NULL) {
-      printf("[thread=%lu] received a %s request\n", getId(), request->typeString().c_str());
+      printf("[thread=%lu][Producer][%s] received a %s request\n",
+        getId(),
+        sessionToken.first.c_str(),
+        request->typeString().c_str()
+      );
       if (request->type() == SEND) {
         SendTweetRoute route = SendTweetRoute(sessionToken.first, *request, m_notificationManager);
         response = route.execute();
@@ -49,7 +60,11 @@ void* ConnectionHandler::run() {
         response = new Packet(ERROR, "Bad request.");
       }
 
-      printf("[thread=%lu] sent a %s response\n", getId(), response->typeString().c_str());
+      printf("[thread=%lu][Producer][%s] sent a %s response\n", 
+        getId(), 
+        sessionToken.first.c_str(),
+        response->typeString().c_str()
+      );
       m_connection->send(response);
 
       delete request;
@@ -57,7 +72,7 @@ void* ConnectionHandler::run() {
     }
 
     consumerThread->stop();
-    //consumerThread->join();
+    consumerThread->join();
     delete consumerThread;
 
     m_profileManager.closeSession(sessionToken.first, sessionToken.second);
@@ -66,7 +81,7 @@ void* ConnectionHandler::run() {
     m_connection->send(&response);
   }
 
-  printf("[thread=%lu] finished...\n", getId());
+  printf("[thread=%lu][Producer][%s] finished...\n", getId(), sessionToken.first.c_str());
   delete m_connection;
 
   return NULL;

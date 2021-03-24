@@ -20,36 +20,38 @@ void* NotificationConsumer::run() {
   printf("[thread=%lu][Consumer][%s] subscribed...\n", getId(), m_username.c_str());
 
   while(shouldStop() == false) {
-    printf("[thread=%lu][Consumer][%s] waiting...\n", getId(), m_username.c_str());
+    //printf("[thread=%lu][Consumer][%s] waiting...\n", getId(), m_username.c_str());
 
-    PendingNotification pending = m_queue.remove();
+    auto pendingOrError = m_queue.tryRemoveFor(1500);
 
-    printf("[thread=%lu][Consumer][%s] removed: <@%s, %d>\n",
-      getId(),
-      m_username.c_str(),
-      pending.sender.c_str(),
-      pending.notificationId
-    );
-
-    // TODO: get nofication content, create a packet and send
-    auto notificationOrError = m_notificationManager.readNotification(pending);
-    if (notificationOrError.first == true) {
-      Packet packet = Packet(DATA, &notificationOrError.second);
-      m_connection->send(&packet);
-
-      printf("[thread=%lu][Consumer][%s] sent: <@%s, %d>\n", 
+    if (pendingOrError.first == true) {
+      PendingNotification pending = pendingOrError.second;
+      printf("[thread=%lu][Consumer][%s] removed: <@%s, %d>\n",
         getId(),
         m_username.c_str(),
         pending.sender.c_str(),
         pending.notificationId
       );
-    } else {
-      printf("[thread=%lu][Consumer][%s] not found: <@%s, %d>\n", 
-        getId(),
-        m_username.c_str(),
-        pending.sender.c_str(),
-        pending.notificationId
-      );
+
+      auto notificationOrError = m_notificationManager.readNotification(pending);
+      if (notificationOrError.first == true) {
+        Packet packet = Packet(DATA, &notificationOrError.second);
+        m_connection->send(&packet);
+
+        printf("[thread=%lu][Consumer][%s] sent: <@%s, %d>\n", 
+          getId(),
+          m_username.c_str(),
+          pending.sender.c_str(),
+          pending.notificationId
+        );
+      } else {
+        printf("[thread=%lu][Consumer][%s] not found: <@%s, %d>\n", 
+          getId(),
+          m_username.c_str(),
+          pending.sender.c_str(),
+          pending.notificationId
+        );
+      }
     }
 
   }

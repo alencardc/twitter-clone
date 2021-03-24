@@ -16,6 +16,13 @@ void NotificationQueue::subscribe(
   Queue<PendingNotification>& queue
 ) {
   m_subscribersQueue.emplace(id, queue);
+  if (m_subscribersQueue.size() == 1 && m_pendingQueue.size() > 0) { 
+    PendingNotification pending;
+    while (m_pendingQueue.size() != 0) {
+      pending = m_pendingQueue.remove();
+      queue.insert(pending);
+    }
+  }
 }
 
 void NotificationQueue::unsubscribe(long unsigned id) {

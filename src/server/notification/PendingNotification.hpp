@@ -8,6 +8,7 @@ class PendingNotification {
     std::string sender;
     int notificationId;
 
+    PendingNotification();
     PendingNotification(std::string username, int id);
 };
 
