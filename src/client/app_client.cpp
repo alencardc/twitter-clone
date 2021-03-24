@@ -46,7 +46,6 @@ int main(int argc, char** argv) {
         connection->send(&packet);
 
         cout << "[sent]: " << line << endl;
-
         length = connection->receive(buff, sizeof(buff));
         if (length == 0) {
           printf("Connection lost. Unable to reach the server.\n");
@@ -54,6 +53,7 @@ int main(int argc, char** argv) {
           buff[length] = '\0';
           cout << "[received]: " << buff << endl;
         }
+        
       } else if (line.rfind("FOLLOW", 0) == 0) {
         Packet packet = Packet(FOLLOW, removePrefix(line, "FOLLOW ").c_str());
         connection->send(&packet);
@@ -66,6 +66,17 @@ int main(int argc, char** argv) {
         } else {
           buff[length] = '\0';
           cout << "[received]: " << buff << endl;
+        }
+      } else if (line.rfind("LISTEN", 0) == 0) {
+        printf("Listening.\n");
+        while (1) {
+          length = connection->receive(buff, sizeof(buff));
+          if (length == 0) {
+            printf("Connection lost. Unable to reach the server.\n");
+          } else {
+            buff[length] = '\0';
+            cout << "[received]: " << buff << endl;
+          }
         }
       } else if (line.rfind("QUIT", 0) == 0) {
         exit = true;

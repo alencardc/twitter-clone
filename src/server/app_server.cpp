@@ -7,6 +7,7 @@
 #include "lib/socket/TCPServer.hpp"
 #include "server/ConnectionHandler.hpp"
 #include "server/profile/ProfileManager.hpp"
+#include "server/notification/NotificationManager.hpp"
 
 using namespace std;
 
@@ -28,6 +29,7 @@ int main(int argc, char** argv) {
 
     printf("[info] Server started! Listening at %s:%d\n", ip.c_str(), port);
     ProfileManager profileManager;
+    NotificationManager notificationManager;
     while(true) {
       TCPConnection* connection = server->accept();
       if (connection == NULL) {
@@ -36,7 +38,7 @@ int main(int argc, char** argv) {
       }
       // Check if should be added a try/catch for bad alloc to wrap work item
       try {
-        ConnectionHandler* handler = new ConnectionHandler(connection, profileManager);
+        ConnectionHandler* handler = new ConnectionHandler(connection, profileManager, notificationManager);
         handler->start();
       } catch(bad_alloc& e) {
         printf("[error] Thread creation: bad_alloc caught: %s\n", e.what());

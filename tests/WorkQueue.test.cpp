@@ -31,18 +31,22 @@ int main() {
   thread2->start();
 
   std::string* item;
-  for (int i = 0; i < 5; i++) {
-    item = new std::string("Message 1");
-    queue.push(item);
-    printf("Produced\n");
-    item = new std::string("Message 2");
-    queue.push(item);
-    printf("Produced\n");
-    item = new std::string("Message 3");
-    queue.push(item);
-    printf("Produced\n");
-    sleep(1);
-  }
+  sleep(5);
+  item = new std::string("Message 1");
+  printf("Produced\n");
+  queue.push(item);
+  // for (int i = 0; i < 5; i++) {
+  //   item = new std::string("Message 1");
+  //   queue.push(item);
+  //   printf("Produced\n");
+  //   item = new std::string("Message 2");
+  //   queue.push(item);
+  //   printf("Produced\n");
+  //   item = new std::string("Message 3");
+  //   queue.push(item);
+  //   printf("Produced\n");
+  //   sleep(1);
+  // }
   printf("Finished produced!");
   while(1);
   delete thread1;

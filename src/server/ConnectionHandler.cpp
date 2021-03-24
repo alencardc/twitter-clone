@@ -3,15 +3,18 @@
 #include "ConnectionHandler.hpp"
 #include "routes/FollowRoute.hpp"
 #include "routes/SendTweetRoute.hpp"
+#include "notification/NotificationConsumer.hpp"
 
 using namespace std;
 
 ConnectionHandler::ConnectionHandler(
   TCPConnection* connection,
-  ProfileManager& profileManager
+  ProfileManager& profileManager,
+  NotificationManager& notificationManager
 ): 
   m_connection(connection),
-  m_profileManager(profileManager)
+  m_profileManager(profileManager),
+  m_notificationManager(notificationManager)
 {};
 
 void* ConnectionHandler::run() {
@@ -22,6 +25,10 @@ void* ConnectionHandler::run() {
 
 
   if (sessionToken.second == getId()) {
+    NotificationConsumer* consumerThread = new NotificationConsumer(m_connection, sessionToken.first, m_notificationManager);
+    consumerThread->start();
+
+
     Packet* response = new Packet(OK, "");
     m_connection->send(response);
     delete response;
@@ -31,7 +38,7 @@ void* ConnectionHandler::run() {
     while((request = m_connection->receive()) != NULL) {
       printf("[thread=%lu] received a %s request\n", getId(), request->typeString().c_str());
       if (request->type() == SEND) {
-        SendTweetRoute route = SendTweetRoute(*request);
+        SendTweetRoute route = SendTweetRoute(sessionToken.first, *request, m_notificationManager);
         response = route.execute();
       } else if (request->type() == FOLLOW) {
         FollowRoute route = FollowRoute(sessionToken.first, *request, m_profileManager);
@@ -48,6 +55,10 @@ void* ConnectionHandler::run() {
       delete request;
       delete response;
     }
+
+    consumerThread->stop();
+    //consumerThread->join();
+    delete consumerThread;
 
     m_profileManager.closeSession(sessionToken.first, sessionToken.second);
   } else {

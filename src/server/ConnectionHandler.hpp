@@ -6,15 +6,18 @@
 #include "lib/Thread.hpp"
 #include "lib/socket/TCPConnection.hpp"
 #include "server/profile/ProfileManager.hpp"
+#include "server/notification/NotificationManager.hpp"
 
 class ConnectionHandler : public Thread {
   TCPConnection* m_connection;
   ProfileManager& m_profileManager;
+  NotificationManager& m_notificationManager;
 
   public: 
     ConnectionHandler(
       TCPConnection* connection,
-      ProfileManager& profileManager);
+      ProfileManager& profileManager,
+      NotificationManager& notificationManager);
 
   private: 
     void* run();
