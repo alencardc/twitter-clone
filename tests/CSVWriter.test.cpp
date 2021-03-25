@@ -7,7 +7,7 @@
 
 int main() {
   CSVWriter writer = CSVWriter();
-  writer.open("data/data.csv", ';');
+  writer.open("data/data5.csv", ';');
 
   std::vector<std::string> row;
   row.push_back("alencar6");
@@ -20,7 +20,7 @@ int main() {
   std::vector<std::string> columns;
   columns.push_back("raphael");
   columns.push_back("filipe");
-  writer.appendToLine(1, "2", columns);
+  // writer.appendToLine(1, "2", columns);
 
   writer.close();
   return 0;

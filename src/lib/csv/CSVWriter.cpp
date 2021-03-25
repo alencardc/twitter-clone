@@ -4,11 +4,31 @@
 CSVWriter::CSVWriter(): m_filename(""), m_delimiter(',') {}
 
 bool CSVWriter::open(std::string filename, char delimiter) {
-  m_file.open(filename, std::fstream::in | std::fstream::out);
+  m_file.open(filename, std::fstream::in);
+  if (m_file.is_open() == false) {
+    m_file.open(filename, std::fstream::out);
+  }
+  m_file.close();
+
+  m_file.open(filename, std::fstream::out | std::fstream::in);
 
   m_delimiter = delimiter;
   
   return m_file.is_open();
+}
+
+bool CSVWriter::isEmpty() {
+  if (m_file.is_open()) {
+    auto currentPos = m_file.tellg();
+    m_file.seekg(0, std::ios::end);
+    if (m_file.tellg() == 0) {
+      return true;
+    }
+    m_file.seekg(currentPos);
+  }
+  return false;
+  
+  return m_file.peek() == std::fstream::traits_type::eof();
 }
 
 void CSVWriter::close() {
@@ -23,9 +43,13 @@ bool CSVWriter::canWrite() {
 
 bool CSVWriter::append(std::vector<std::string> row) {
   if (m_file.is_open() && row.size() > 0) {
-    m_file.seekp(0, std::ios::end);
-    std::string formattedRow = "\n" + formatLine(row);
-    m_file << formattedRow;
+    std::string formattedRow = formatLine(row);
+    if (isEmpty()) {
+      m_file << formattedRow;
+    } else {
+      m_file.seekp(0, std::ios::end);
+      m_file << "\n" + formattedRow;
+    }
     return true;
   }
   return false;

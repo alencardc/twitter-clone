@@ -18,6 +18,8 @@ class CSVWriter {
 
     bool open(std::string filename, char delimiter = ',');
 
+    bool isEmpty();
+
     void close();
 
     bool canWrite();
