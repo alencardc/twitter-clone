@@ -9,6 +9,7 @@ class TCPConnection {
   int m_socketDescriptor;
   std::string m_ip;
   int m_port;
+  int m_sequenceNumber;
 
   public:
     friend class TCPClient;

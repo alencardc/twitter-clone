@@ -1,14 +1,18 @@
 #include <unistd.h> // close()
+#include <stdlib.h> // rand()
 #include <ctime>
 #include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include "TCPConnection.hpp"
 
-TCPConnection::TCPConnection(int socket, std::string ipAddress, int portNumber) {
-  m_socketDescriptor = socket;
-  m_ip = ipAddress;
-  m_port = portNumber;
+TCPConnection::TCPConnection(int socket, std::string ipAddress, int portNumber):
+  m_socketDescriptor(socket),
+  m_ip(ipAddress),
+  m_port(portNumber)
+{
+  srand(time(NULL));
+  m_sequenceNumber = rand() % 16384; 
 }
 
 TCPConnection::~TCPConnection() {
@@ -28,7 +32,8 @@ ssize_t TCPConnection::send(const char* buffer, size_t length) {
 }
 
 ssize_t TCPConnection::send(Packet* packet) {
-  packet->m_sequenceNumber = 0; // TODO
+  packet->m_sequenceNumber = m_sequenceNumber;
+  m_sequenceNumber += 1; 
   packet->m_timestamp = std::time(NULL);
   std::string buffer = packet->serialize();
   return ::send(m_socketDescriptor, buffer.c_str(), buffer.size(), 0);
