@@ -29,8 +29,8 @@ std::list<std::string> User::followers() {
   return m_followers;
 }
 
-bool User::follow(std::string userToFollow) {
-  if (m_username == userToFollow) {
+bool User::addFollower(std::string follower) {
+  if (m_username == follower) {
     return false;
   }
 
@@ -38,13 +38,13 @@ bool User::follow(std::string userToFollow) {
   bool alreadyFollow = std::binary_search(
     m_followers.begin(),
     m_followers.end(),
-    userToFollow);
+    follower);
 
   if (alreadyFollow == true) {
     return false;
   }
 
-  m_followers.push_back(userToFollow);
+  m_followers.push_back(follower);
   return true;
 }
 

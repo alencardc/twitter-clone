@@ -23,7 +23,7 @@ class User {
     std::string username();
     std::list<std::string> followers();
 
-    bool follow(std::string userToFollow);
+    bool addFollower(std::string follower);
 
     int sessionCount();
     std::list<Session> sessions();

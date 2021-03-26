@@ -17,7 +17,7 @@ bool ProfileManager::follow(std::string follower, std::string userToFollow) {
 
   bool success = false;
   if (m_users.count(follower) == 1 && m_users.count(userToFollow) == 1) {
-    success = m_users[follower].follow(userToFollow);
+    success = m_users[userToFollow].addFollower(follower);
   }
 
   m_mutex.unlock();
