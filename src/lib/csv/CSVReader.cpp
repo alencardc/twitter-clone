@@ -52,6 +52,7 @@ std::vector<std::string> CSVReader::readLine(int lineNumber) {
 
 void CSVReader::goToBegin() {
   if (m_file.is_open()) {
+    m_file.clear();
     m_file.seekg(0);
   }
 }
