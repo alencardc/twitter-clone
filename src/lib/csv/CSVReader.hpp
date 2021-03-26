@@ -22,7 +22,7 @@ class CSVReader {
     bool canRead();
 
     std::vector<std::string> readLine(int lineNumber);
-    std::vector<std::string> searchFor(int columnNumber, std::string content);
+    std::vector<std::string> searchFor(long unsigned int columnNumber, std::string content);
 
     std::vector<std::vector<std::string>> readAll();
 };

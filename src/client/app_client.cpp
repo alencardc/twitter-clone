@@ -69,8 +69,11 @@ int main(int argc, char** argv) {
         }
       } else if (line.rfind("LISTEN", 0) == 0) {
         printf("Listening.\n");
+        int i = 0;
         while (1) {
           length = connection->receive(buff, sizeof(buff));
+          printf("\nIt: %d\n", i);
+          i+=1;
           if (length == 0) {
             printf("Connection lost. Unable to reach the server.\n");
           } else {

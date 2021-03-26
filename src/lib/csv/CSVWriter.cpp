@@ -56,7 +56,7 @@ bool CSVWriter::append(std::vector<std::string> row) {
 }
 
 bool CSVWriter::appendToLine(
-  int columnNumber, 
+  long unsigned int columnNumber, 
   std::string seachFor, 
   std::vector<std::string> newColumns
 ) {
@@ -88,7 +88,7 @@ bool CSVWriter::appendToLine(
     m_file.seekg(0);
     if (rows[0].size() > 0) {
       m_file << formatLine(rows[0]);
-      for (int i = 1; i < rows.size(); i++) {
+      for (long unsigned int i = 1; i < rows.size(); i++) {
         m_file << "\n" + formatLine(rows[i]);
       }
       return true;
@@ -100,7 +100,7 @@ bool CSVWriter::appendToLine(
 
 std::string CSVWriter::formatLine(std::vector<std::string> line) {
   std::string formattedRow = line[0];
-  for (int i = 1; i < line.size(); i++) {
+  for (long unsigned int i = 1; i < line.size(); i++) {
     formattedRow += m_delimiter + line[i];
   }
   return formattedRow;

@@ -27,7 +27,7 @@ class CSVWriter {
     bool append(std::vector<std::string> row);
     
     bool appendToLine(
-      int columnNumber, 
+      long unsigned int columnNumber, 
       std::string seachFor, 
       std::vector<std::string> newColumns
     );
