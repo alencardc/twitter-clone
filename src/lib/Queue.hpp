@@ -39,6 +39,19 @@ class Queue {
       return element;
     }
 
+    std::pair<bool, T> tryRemove() {
+      std::pair<bool, T> element = std::make_pair(false, T());
+
+      if (m_mutex.try_lock()) {
+        if (m_queue.empty() != true) {
+          element = std::make_pair(true, m_queue.front());
+          m_queue.pop();
+        }
+        m_mutex.unlock();
+      }
+      return element;
+    }
+
     std::pair<bool, T> tryRemoveFor(unsigned milliseconds) {
       std::unique_lock<std::mutex> lock(m_mutex); // Locks mutex (m_mutex.lock())
       //m_mutex.lock();

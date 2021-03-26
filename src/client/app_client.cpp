@@ -4,6 +4,8 @@
 #include "lib/utils/string.hpp"
 #include "lib/socket/TCPClient.hpp"
 #include "lib/packet/Packet.hpp"
+#include "ConnectionConsumer.hpp"
+#include "lib/Queue.hpp"
 
 using namespace std;
 
@@ -33,12 +35,19 @@ int main(int argc, char** argv) {
   if (packet->type() == OK) {
     printf("Logged in as: %s\n", username.c_str());
 
-    string line;
-    int length;
-    char buff[256];
+    Queue<Packet*> dataQueue;
+    ConnectionConsumer packetReceiver = ConnectionConsumer(*connection, dataQueue);
+    packetReceiver.start();
+
+    string line; 
 
     bool exit = false;
     while (exit == false) {
+      auto packetOrError = dataQueue.tryRemove();
+      if (packetOrError.first == true) {
+        printf("[receivedOnMain] %s\n", packetOrError.second->serialize().c_str());
+      }
+
       getline(cin, line);
 
       if (line.rfind("SEND ", 0) == 0) {
@@ -46,41 +55,12 @@ int main(int argc, char** argv) {
         connection->send(&packet);
 
         cout << "[sent]: " << line << endl;
-        length = connection->receive(buff, sizeof(buff));
-        if (length == 0) {
-          printf("Connection lost. Unable to reach the server.\n");
-        } else {
-          buff[length] = '\0';
-          cout << "[received]: " << buff << endl;
-        }
         
       } else if (line.rfind("FOLLOW", 0) == 0) {
         Packet packet = Packet(FOLLOW, removePrefix(line, "FOLLOW ").c_str());
         connection->send(&packet);
 
         cout << "[sent]: " << line << endl;
-
-        length = connection->receive(buff, sizeof(buff));
-        if (length == 0) {
-          printf("Connection lost. Unable to reach the server.\n");
-        } else {
-          buff[length] = '\0';
-          cout << "[received]: " << buff << endl;
-        }
-      } else if (line.rfind("LISTEN", 0) == 0) {
-        printf("Listening.\n");
-        int i = 0;
-        while (1) {
-          length = connection->receive(buff, sizeof(buff));
-          printf("\nIt: %d\n", i);
-          i+=1;
-          if (length == 0) {
-            printf("Connection lost. Unable to reach the server.\n");
-          } else {
-            buff[length] = '\0';
-            cout << "[received]: " << buff << endl;
-          }
-        }
       } else if (line.rfind("QUIT", 0) == 0) {
         exit = true;
       }
