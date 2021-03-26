@@ -16,13 +16,13 @@ void* ConnectionConsumer::run() {
 
   while(true) {
     packet = m_connection.receive();
-    printf("\nIt: %d\n", i);
+    //printf("\nIt: %d\n", i);
     i+=1;
     if (packet == NULL) {
-      printf("Connection lost. Unable to reach the server.\n");
+      //printf("Connection lost. Unable to reach the server.\n");
       break;
     } else {
-      printf("[receivedOnConsumer]: %s\n", packet->serialize().c_str());
+      //printf("[receivedOnConsumer]: %s\n", packet->serialize().c_str());
       m_queue.insert(packet);
     }
   }

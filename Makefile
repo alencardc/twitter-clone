@@ -5,7 +5,7 @@ server:
 	@echo Server compiled successfully!
 
 client:
-	make -f base.mk TARGET_EXEC=app_client SRC_DIRS="src/client src/lib"
+	make -f base.mk TARGET_EXEC=app_client SRC_DIRS="src/client src/lib" EXTRA_LIBS="-lncurses"
 	@echo Client compiled successfully!
 
 clean:

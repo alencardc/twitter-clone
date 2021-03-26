@@ -2,6 +2,7 @@
 TARGET_EXEC = app 
 BUILD_DIR = ./build
 SRC_DIRS = ./src
+EXTRA_LIBS = 
 ########################################
 
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp)
@@ -14,7 +15,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # Compiler
 CXX = g++
-LDFLAGS = -pthread
+LDFLAGS = -pthread $(EXTRA_LIBS)
 CPPFLAGS = $(INC_FLAGS) -MMD -MP
 CXXFLAGS = -Wall
 
