@@ -20,6 +20,7 @@ class CSVReader {
     void close();
 
     bool canRead();
+    void goToBegin();
 
     std::vector<std::string> readLine(int lineNumber);
     std::vector<std::string> searchFor(long unsigned int columnNumber, std::string content);

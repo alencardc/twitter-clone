@@ -50,6 +50,12 @@ std::vector<std::string> CSVReader::readLine(int lineNumber) {
   return row;
 }
 
+void CSVReader::goToBegin() {
+  if (m_file.is_open()) {
+    m_file.seekg(0);
+  }
+}
+
 std::vector<std::string> CSVReader::searchFor(long unsigned int columnNumber, std::string content) {
   std::vector<std::string> row;
 
