@@ -7,11 +7,11 @@ ProfilePersistency::~ProfilePersistency() {}
 
 void ProfilePersistency::readUsers(std::unordered_map<std::string, User>& users) {
 
-  m_csvFile.open(m_filename, m_split);
+  m_csvFile_r.open(m_filename, m_split);
 
   int currentLine = 0;
-  auto line =     m_csvFile.readLine(currentLine++);
-  while(m_csvFile.canRead()){
+  auto line =     m_csvFile_r.readLine(currentLine++);
+  while(m_csvFile_r.canRead()){
     auto username = line[0];
     //add_user
     auto myUser = new User(users.size(), username);
@@ -19,20 +19,20 @@ void ProfilePersistency::readUsers(std::unordered_map<std::string, User>& users)
     //logging
     std::cout << "[DB]: adding user: " + username << std::endl;
 
-    line = m_csvFile.readLine(currentLine++);
+    line = m_csvFile_r.readLine(currentLine++);
   }
 
-  m_csvFile.close();
+  m_csvFile_r.close();
 }
 
 void ProfilePersistency::readFollowers(std::unordered_map<std::string, User>& users) {
 
-  m_csvFile.open(m_filename, m_split);
+  m_csvFile_r.open(m_filename, m_split);
 
   int currentLine = 0;
-  auto line =     m_csvFile.readLine(currentLine++);
+  auto line =     m_csvFile_r.readLine(currentLine++);
 
-  while(m_csvFile.canRead()) {
+  while(m_csvFile_r.canRead()) {
     auto username = line[0];
 
     // start following
@@ -42,8 +42,31 @@ void ProfilePersistency::readFollowers(std::unordered_map<std::string, User>& us
       std::cout << "[DB]: "<< *follower << " started following " << username << std::endl;
     }
 
-    line = m_csvFile.readLine(currentLine++);
+    line = m_csvFile_r.readLine(currentLine++);
   }
 
-  m_csvFile.close();
+  m_csvFile_r.close();
 }
+
+void ProfilePersistency::saveNewUser(std::string user){
+
+  m_csvFile_w.open(m_filename, m_split);
+
+  std::vector<std::string> myUser;
+  myUser.push_back(user);
+
+  m_csvFile_w.append(myUser);
+
+  m_csvFile_w.close();
+}
+
+void ProfilePersistency::saveNewFollower(std::string user, std::string follower){
+
+  m_csvFile_w.open(m_filename, m_split);
+
+  //m_csvFile_w.appendToLine();
+
+  m_csvFile_w.close();
+}
+
+
