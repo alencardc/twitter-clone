@@ -9,9 +9,10 @@
 class ProfilePersistency{
 	private:
 		std::string m_filename;
+                char m_split;
 		CSVReader m_csvFile;
 	public:
-		ProfilePersistency(std::string filename = "UsersFollowing.db");
+		ProfilePersistency(std::string filename = "UsersFollowing.db", char splitter=';');
 		~ProfilePersistency();
 
 		//void saveNewUser();
