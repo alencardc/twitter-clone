@@ -2,6 +2,7 @@
 #include <stdlib.h> // rand()
 #include <ctime>
 #include <string>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include "TCPConnection.hpp"
@@ -44,11 +45,48 @@ ssize_t TCPConnection::receive(char* buffer, size_t length) {
 }
 
 Packet* TCPConnection::receive() {
-  char buffer[1024];
+  char buffer[RECV_BUFFER_SIZE];
+
+  if (m_buffer.empty() == false) {
+    Packet *packet = Packet::deserialize(m_buffer.c_str());
+    if (packet->type() != NO_TYPE) {
+      m_buffer.erase(0, m_buffer.size());
+      packet = breakPayload(packet);
+      return packet;
+    } else if(m_buffer.find("type:") != 0) {
+      m_buffer.clear();
+    }
+  }
+
   int length = recv(m_socketDescriptor, buffer, sizeof(buffer)-1, 0);
   if (length > 0) {
     buffer[length] = '\0';
-    return Packet::deserialize(buffer);
+    Packet *packet = Packet::deserialize(buffer);
+    if (packet->type() != NO_TYPE) {
+      packet = breakPayload(packet);
+    } else if (m_buffer.empty() == false) {
+      m_buffer.append(buffer);
+      packet = Packet::deserialize(m_buffer.c_str());
+      if (packet->type() != NO_TYPE) {
+        m_buffer.erase(0, m_buffer.size());
+        packet = breakPayload(packet);
+      } else {
+        m_buffer.clear();
+      }
+    }
+    return packet;
   }
+  m_buffer.clear();
   return NULL;
+}
+
+Packet* TCPConnection::breakPayload(Packet* packet) {
+  std::string payload = packet->payload();
+  if ((unsigned int)packet->length() < payload.size()) {
+    m_buffer.append(payload.substr(packet->length(), std::string::npos));
+    payload.erase(packet->length(), std::string::npos);
+    delete packet->m_payload;
+    packet->m_payload = strdup(payload.c_str());
+  }
+  return packet;
 }

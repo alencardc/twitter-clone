@@ -4,12 +4,14 @@
 #include <string>
 #include "lib/packet/Packet.hpp"
 
+#define RECV_BUFFER_SIZE 400
 
 class TCPConnection {
   int m_socketDescriptor;
   std::string m_ip;
   int m_port;
   int m_sequenceNumber;
+  std::string m_buffer;
 
   public:
     friend class TCPClient;
@@ -27,6 +29,8 @@ class TCPConnection {
   
   private:
     TCPConnection(int socket, std::string ipAddress, int portNumber);
+
+    Packet* breakPayload(Packet* packet);
 };
 
 #endif //__TCPConnection_hpp__
