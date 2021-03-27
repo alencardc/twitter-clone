@@ -8,114 +8,154 @@
 #include "ConnectionConsumer.hpp"
 #include "lib/Queue.hpp"
 
-#include <ncurses.h>
+#include "ui/App.hpp"
+#include "ui/Window.hpp"
+#include "ui/Label.hpp"
+#include "ui/TextInput.hpp"
+#include "ui/NotificationList.hpp"
 
-using namespace std;
+#define MAX_SIZE_USERNAME 20
+#define MIN_SIZE_USERNAME 4
 
 // "127.0.0.1", 8080
+bool tryLogin(std::string username, TCPConnection* connection);
+void handleNotificationWindow(App& app, Window& window, NotificationList& list);
+void handleCommand(std::string command, TCPConnection* connection);
+bool usernameIsValid(std::string username);
 
 int main(int argc, char** argv) {
   if (argc != 4) { 
-    cout << "Invalid parameters. Usage: " << argv[0] << "<ip> <port> <username>" << endl;
+    printf("Invalid parameters. Usage: %s <ip> <port> <username>", argv[0]);
+    return 1;
   }
 
-  string ip = argv[1];
+  std::string ip = argv[1];
   int port = atoi(argv[2]);
-  string username = argv[3];
+  std::string username = argv[3];
 
   TCPClient* client = new TCPClient();
   TCPConnection* connection = client->connect(ip, port);
-
   if (connection == NULL) {
-    printf("Unable stablish a connection with the server.\n");
+    printf("Unable establish a connection with the server.\n");
     return 1;
   }
   
-  Packet loginPacket = Packet(LOGIN, username.c_str());
-  connection->send(&loginPacket);
+  if (tryLogin(username, connection) == true) {
+    // User Interface (UI) creation -----------------------------
+    App app = App();
+    int maxX = app.maxX(); int maxY = app.maxY();
+    int width = 60; int pY = 2; int centerX = maxX/2-width/2;
+    int inputHeight = 5; int sideBoxWidth = 25;
 
-  Packet* packet = connection->receive();
-  printf("%s\n", packet->serialize().c_str());
-  if (packet->type() == (PacketType)4) {
-    printf("Logged in as: %s\n", username.c_str());
+    Window* userWindow = app.createWindow({1, pY}, {sideBoxWidth, 3});
+    Label *lName = new Label({1,1}, username.c_str());
+    userWindow->addName("  Hello,  ");
+    userWindow->addWidget(lName);
+    int usageY = userWindow->position().y + userWindow->size().y + pY;
+    Window* usageWindow = app.createWindow({1, usageY}, {sideBoxWidth, 9});
+    usageWindow->addName("  Usage  ");
+    Label *lExit = new Label({1,1}, "F1 - Back/Exit");
+    Label *lCommand = new Label({1,3}, "c  - Enter command box");
+    Label *lFeed = new Label({1,5}, "f  - Enter feed list");
+    Label *lSend = new Label({1,7}, "Return - Send command");
+    usageWindow->addWidget(lExit); usageWindow->addWidget(lCommand);
+    usageWindow->addWidget(lFeed); usageWindow->addWidget(lSend);
 
-    Queue<Packet*> dataQueue;
-    ConnectionConsumer packetReceiver = ConnectionConsumer(*connection, dataQueue);
+    Window* inputWindow = app.createWindow({centerX, maxY-pY-inputHeight}, {width, inputHeight});
+    inputWindow->addName("  Commands  ");
+
+    Window* feedWindow = app.createWindow({centerX, pY}, {width, inputWindow->position().y-3});
+    feedWindow->addName("  Notifications feed  ");
+    
+    TextInput* textInput = new TextInput({1,1}, {inputWindow->size().x-2, inputWindow->size().y-2});
+    textInput->setMaxSize(Notification::MAX_SIZE);
+    inputWindow->addWidget(textInput);
+
+    NotificationList* feedList = new NotificationList({1,1}, {60-2, inputWindow->position().y-3-1});
+    Notification n; n.sender="@alencar"; n.message="Alencar0"; n.date="Today";
+    feedList->addItem(n);
+    n.message="Alencar1"; feedList->addItem(n);
+    n.message="Alencar2"; feedList->addItem(n);
+    n.message="The WikiEditor extension provides an improved interface for editing wikitext. It is the wikitext editing interface that Wikipedia started using in 2010 for desktop"; feedList->addItem(n);
+    n.message="Alencar4"; feedList->addItem(n);
+    n.message="Alencar5"; feedList->addItem(n);
+    feedWindow->addWidget(feedList);
+    // ----------------------------------------------------------
+    
+    ConnectionConsumer packetReceiver = ConnectionConsumer(*connection, *feedList);
     packetReceiver.start();
 
-    string line; 
-
-    initscr();
-    raw();
-    halfdelay(5);
-    noecho();
-    keypad(stdscr, TRUE);
-    int row, col;
-    getmaxyx(stdscr,row,col);
-    //printw("row:%d col:%d", row, col);
-
-    bool exit = false;
-    char inputBuff[2];
-    inputBuff[1] = '\0';
-    std::string notificationsBuffer;
-    while (exit == false) {
-      int input = getch();
-
-      if (input != ERR && input < 256) {
-        inputBuff[0] = (char) input;
-
-        if (inputBuff[0] == '\n') {
-          if (line.rfind("SEND ", 0) == 0) {
-            Packet packet = Packet(SEND, removePrefix(line, "SEND ").c_str());
-            connection->send(&packet);
-            //mvprintw(0,10,"%s", line.c_str());
-            //cout << "[sent]: " << line << endl;
-          }
-          mvprintw(0,0, std::string(line.size(), ' ').c_str());
-          move(0,0);
-          line.clear();
-        } else {
-          line.append(inputBuff);
-          mvprintw(0,0, line.c_str());
-        } 
-      } else if (input == KEY_BACKSPACE && line.empty() == false) {
-        line.pop_back();
-        mvprintw(0,getcurx(stdscr)-1, " ");
-        move(0,getcurx(stdscr)-1);
+    // Client handle --------------------------------------------
+    int screenEvent;
+    while ((screenEvent = app.getKeyEvent()) != KEY_F(1)) {
+      if (screenEvent == 'c') {
+        std::string command = textInput->input(*inputWindow);
+        handleCommand(command, connection);
+      } else if (screenEvent == 'n') {
+        handleNotificationWindow(app, *feedWindow, *feedList);
       }
-
-      auto packetOrError = dataQueue.tryRemove();
-      if (packetOrError.first == true) {
-        mvprintw(6, 0,"[receivedOnMain] %s\n", packetOrError.second->serialize().c_str());
-      }
-      /*
-      //getline(cin, line);
-
-      if (line.rfind("SEND ", 0) == 0) {
-        Packet packet = Packet(SEND, removePrefix(line, "SEND ").c_str());
-        connection->send(&packet);
-
-        cout << "[sent]: " << line << endl;
-        
-      } else if (line.rfind("FOLLOW", 0) == 0) {
-        Packet packet = Packet(FOLLOW, removePrefix(line, "FOLLOW ").c_str());
-        connection->send(&packet);
-
-        cout << "[sent]: " << line << endl;
-      } else if (line.rfind("QUIT", 0) == 0) {
-        exit = true;
-      }*/
-
-      refresh();
+      app.draw();
     }
-
-    endwin();
-  } else {
-    printf("Unable to login: %s\n", packet->payload());
   }
 
-  delete packet;
   delete connection;
-
   return 0;
+}
+
+bool tryLogin(std::string username, TCPConnection* connection) {
+  if (usernameIsValid(username) == false) {
+    printf("Invalid username.\n");
+    printf("A valid username starts with '@' and has a minimum of 4 characters and maximum of 20 characters.\n");
+    return false;
+  }
+
+  Packet request = Packet(LOGIN, username.c_str());
+  connection->send(&request);
+  Packet* response = connection->receive();
+  
+  if(response->type() != (PacketType)4) { // OK
+    printf("Unable to login: %s\n", response->payload());
+    return false;
+  }
+  delete response;
+  return true;
+}
+
+void handleNotificationWindow(App& app, Window& window, NotificationList& list) {
+  int event;
+  while ((event = window.getKeyEvent()) != KEY_F(1)) {
+    switch (event) {
+      case KEY_UP:
+        list.showPrevious();
+        app.draw();
+        break;
+      case KEY_DOWN: 
+        list.showNext();
+        app.draw();
+        break;
+    }
+  }
+}
+
+void handleCommand(std::string command, TCPConnection* connection) {
+  if (command.rfind("SEND ", 0) == 0) {
+    std::string message = removePrefix(command, "SEND ");
+    Packet packet = Packet(SEND, message.c_str());
+    connection->send(&packet);
+  } else if (command.rfind("FOLLOW ", 0) == 0) {
+    std::string username = removePrefix(command, "FOLLOW ");
+    if (usernameIsValid(username)) {
+      Packet packet = Packet(FOLLOW, username.c_str());
+      connection->send(&packet);
+    }
+  }
+}
+
+bool usernameIsValid(std::string username) {
+  if (username[0] != '@') {
+    return false;
+  }
+
+  return (username.size() >= MIN_SIZE_USERNAME+1 
+        && username.size() <= MAX_SIZE_USERNAME+1);
 }

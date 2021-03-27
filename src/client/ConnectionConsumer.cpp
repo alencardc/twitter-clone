@@ -1,29 +1,31 @@
 #include <stdio.h>
 #include "ConnectionConsumer.hpp"
+#include "lib/packet/Packet.hpp"
 
 ConnectionConsumer::ConnectionConsumer(
   TCPConnection& connection,
-  Queue<Packet*>& queue
+  NotificationList& feed
 ):
   m_connection(connection),
-  m_queue(queue)
+  m_feed(feed)
 {}
 
 void* ConnectionConsumer::run() {
-  printf("Consumer running\n");
   Packet* packet;
-  int i = 0;
 
   while(true) {
     packet = m_connection.receive();
-    //printf("\nIt: %d\n", i);
-    i+=1;
     if (packet == NULL) {
       //printf("Connection lost. Unable to reach the server.\n");
       break;
     } else {
+      if (packet->type() == DATA) {
+        Notification* notification = Notification::deserialize(packet->payload());
+        m_feed.addItem(*notification);
+        delete notification;
+      }
       //printf("[receivedOnConsumer]: %s\n", packet->serialize().c_str());
-      m_queue.insert(packet);
+      //m_queue.insert(packet);
     }
   }
 

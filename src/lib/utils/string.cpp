@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <time.h>
 #include "string.hpp"
 
 bool hasPrefix(std::string origin, std::string prefix) {
@@ -47,4 +48,23 @@ std::vector<std::string> split(const std::string& str, const std::string& delimi
   }
   parts.push_back(strCopy);
   return parts;
+}
+
+std::vector<std::string> splitByLength(long unsigned length, std::string s) {
+  std::string buff = s;
+  std::vector<std::string> strings;
+  strings.push_back(buff.substr(0, length));
+  while (buff.size() > length) {
+    buff = buff.substr(length);
+    strings.push_back(buff.substr(0, length));
+  }
+  return strings;
+}
+
+std::string beautifyTime(long unsigned timestamp) {
+  time_t time = timestamp;
+  struct tm* timeinfo = localtime(&time);
+  char buffer[35];
+  strftime(buffer, sizeof(buffer), "%d %h %Y at %T", timeinfo);
+  return std::string(buffer);
 }

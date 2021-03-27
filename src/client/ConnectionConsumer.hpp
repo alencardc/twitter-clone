@@ -5,12 +5,13 @@
 #include "lib/socket/TCPConnection.hpp"
 #include "lib/packet/Packet.hpp"
 #include "lib/Queue.hpp"
+#include "ui/NotificationList.hpp"
 
 class ConnectionConsumer: public Thread {
   TCPConnection& m_connection;
-  Queue<Packet*>& m_queue;
+  NotificationList& m_feed;
   public:
-    ConnectionConsumer(TCPConnection& connection, Queue<Packet*>& queue);
+    ConnectionConsumer(TCPConnection& connection, NotificationList& feed);
 
   private:
     void* run();
