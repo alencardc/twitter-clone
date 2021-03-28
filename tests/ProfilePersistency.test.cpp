@@ -1,4 +1,4 @@
-#include "../src/server/profile/ProfilePersistency.hpp"
+#include "server/profile/ProfilePersistency.hpp"
 #include <unordered_map>
 #include <iostream>
 #include <string>
@@ -9,7 +9,7 @@ int main(){
   constexpr bool isHandMadeFile = false;
 
   std::unordered_map<std::string, User> myUsersMap;
-  ProfilePersistency db("UsersFollowing.db");
+  ProfilePersistency db;
 
   if(!isHandMadeFile) {
     std::string user1 = "matheus";
@@ -18,15 +18,23 @@ int main(){
     db.saveNewUser(user1);
     db.saveNewUser(user2);
     db.saveNewUser(user3);
+    db.saveNewFollower(user1, user2);
+    db.saveNewFollower(user2, user3);
+    db.saveNewFollower(user3, user2);
+    db.saveNewFollower(user1, user3);
     std::cout << "Inserting new users...\n";
   }
 
-  db.readUsers(myUsersMap);
-  db.readFollowers(myUsersMap);
-
-  for(auto &i: myUsersMap)
-    std::cout << i.first << " ";
-  std::cout << std::endl;
+  myUsersMap = db.readUsers();
+  std::cout << "Size: " << myUsersMap.size() << std::endl;
+  
+  for(auto user: myUsersMap) {
+    printf("%s -> ", user.second.username().c_str());
+    for (auto follower : user.second.followers()) {
+      printf("%s;", follower.c_str());
+    }
+    printf("\n");
+  }
 
   return 0;
 }
