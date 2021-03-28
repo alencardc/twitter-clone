@@ -9,7 +9,7 @@
 
 class ProfilePersistency{
   private:
-    const std::string m_filename = "data/Users.db";
+    const std::string m_filename = "Users.db";
     const char m_split = ';';
 
     CSVReader m_csvFile_r;

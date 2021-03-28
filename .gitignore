@@ -8,3 +8,8 @@ bin
 
 tests/*
 !tests/*.test.cpp
+
+*.csv
+*.db
+**/*.csv
+**/*.db
