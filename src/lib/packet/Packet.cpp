@@ -33,7 +33,7 @@ Packet::Packet(int length, PacketType type, int sequenceNumber, long unsigned in
 
   std::string s = payload;
   m_payload = strdup(payload);
-  m_length = s.size();//strlen(payload + 1);
+  m_length = length;
 }
 
 Packet::~Packet() {
