@@ -1,51 +1,32 @@
 #include "ProfilePersistency.hpp"
-#include <iostream>
 
-ProfilePersistency::ProfilePersistency(std::string filename, char splitter) : m_filename(filename), m_split(splitter) {}
+ProfilePersistency::ProfilePersistency() {}
 
 ProfilePersistency::~ProfilePersistency() {}
 
-void ProfilePersistency::readUsers(std::unordered_map<std::string, User>& users) {
+std::unordered_map<std::string, User> ProfilePersistency::readUsers() {
 
   m_csvFile_r.open(m_filename, m_split);
+  std::unordered_map<std::string, User> users;
 
-  int currentLine = 0;
-  auto line =     m_csvFile_r.readLine(currentLine++);
-  while(m_csvFile_r.canRead()){
-    auto username = line[0];
-    //add_user
-    auto myUser = new User(users.size(), username);
-    users.emplace(username, *myUser);
-    //logging
-    std::cout << "[DB]: adding user: " + username << std::endl;
+  int userId = 1;
+  auto usersRaw = m_csvFile_r.readAll();
+  for (auto userRaw : usersRaw) {
+    std::string username = userRaw[0];
+    userRaw.erase(userRaw.begin());
 
-    line = m_csvFile_r.readLine(currentLine++);
-  }
-
-  m_csvFile_r.close();
-}
-
-void ProfilePersistency::readFollowers(std::unordered_map<std::string, User>& users) {
-
-  m_csvFile_r.open(m_filename, m_split);
-
-  int currentLine = 0;
-  auto line =     m_csvFile_r.readLine(currentLine++);
-
-  while(m_csvFile_r.canRead()) {
-    auto username = line[0];
-
-    // start following
-    for(auto follower = line.begin()+1; follower != line.end(); follower++){
-      users[username].addFollower(*follower);
-      //logging
-      std::cout << "[DB]: "<< *follower << " started following " << username << std::endl;
+    User user = User(userId, username);
+    for (std::string follower : userRaw) {
+      user.addFollower(follower);
     }
+    users.emplace(username, user);
+    userId += 1;
 
-    line = m_csvFile_r.readLine(currentLine++);
+    printf("[DB] Loading user: %s\n", username.c_str());    
   }
 
   m_csvFile_r.close();
+  return users;
 }
 
 void ProfilePersistency::saveNewUser(std::string user){
@@ -64,7 +45,9 @@ void ProfilePersistency::saveNewFollower(std::string user, std::string follower)
 
   m_csvFile_w.open(m_filename, m_split);
 
-  //m_csvFile_w.appendToLine();
+  std::vector<std::string> followers;
+  followers.push_back(follower);
+  m_csvFile_w.appendToLine(0, user, followers);
 
   m_csvFile_w.close();
 }
