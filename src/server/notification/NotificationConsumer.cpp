@@ -26,7 +26,7 @@ void* NotificationConsumer::run() {
 
     if (notificationOrError.first == true) {
       Notification notification = notificationOrError.second;
-      printf("[thread=%lu][Consumer][%s] removed: <@%s, %d>\n",
+      printf("[thread=%lu][Consumer][%s] removed: <%s, %d>\n",
         getId(),
         m_username.c_str(),
         notification.username.c_str(),
@@ -36,7 +36,7 @@ void* NotificationConsumer::run() {
       Packet packet = Packet(DATA, &notificationOrError.second);
       m_connection->send(&packet);
 
-      printf("[thread=%lu][Consumer][%s] sent: <@%s, %d>\n", 
+      printf("[thread=%lu][Consumer][%s] sent: <%s, %d>\n", 
         getId(),
         m_username.c_str(),
         notification.username.c_str(),

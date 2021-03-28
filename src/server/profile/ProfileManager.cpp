@@ -1,7 +1,17 @@
 #include "ProfileManager.hpp"
+#include "ProfilePersistency.hpp"
 
 ProfileManager::ProfileManager() {}
 ProfileManager::~ProfileManager() {}
+
+void ProfileManager::loadUsers() {
+  m_mutex.lock();
+
+  ProfilePersistency db;
+  m_users = db.readUsers();
+  
+  m_mutex.unlock();
+}
 
 bool ProfileManager::userExists(std::string username) {
   m_mutex.lock();
@@ -18,6 +28,10 @@ bool ProfileManager::follow(std::string follower, std::string userToFollow) {
   bool success = false;
   if (m_users.count(follower) == 1 && m_users.count(userToFollow) == 1) {
     success = m_users[userToFollow].addFollower(follower);
+    if (success) {
+      ProfilePersistency db;
+      db.saveNewFollower(userToFollow, follower);
+    }
   }
 
   m_mutex.unlock();
@@ -56,10 +70,13 @@ bool ProfileManager::startSession(std::string username, Session session) {
   bool success = false;
   if (m_users.count(username) == 1) {
     success = m_users[username].addSession(session);
-  } else {
+  } else { // New user!
     User newUser = User(m_users.size(), username);
     newUser.addSession(session);
     m_users.emplace(username, newUser);
+
+    ProfilePersistency db;
+    db.saveNewUser(username);
     success = true;
   }
 

@@ -15,6 +15,7 @@ enum PacketType {
 };
 
 class Packet {
+  public:
   int m_length;
   PacketType m_type;
   int m_sequenceNumber;

@@ -22,7 +22,7 @@ std::unordered_map<std::string, User> ProfilePersistency::readUsers() {
     users.emplace(username, user);
     userId += 1;
 
-    printf("[DB] Loading user: %s\n", username.c_str());    
+    printf("[DB] Loading user '%s'\n", username.c_str());    
   }
 
   m_csvFile_r.close();
@@ -38,6 +38,7 @@ void ProfilePersistency::saveNewUser(std::string user){
 
   m_csvFile_w.append(myUser);
 
+  printf("[DB] Saving user '%s'\n", user.c_str());    
   m_csvFile_w.close();
 }
 
@@ -49,6 +50,7 @@ void ProfilePersistency::saveNewFollower(std::string user, std::string follower)
   followers.push_back(follower);
   m_csvFile_w.appendToLine(0, user, followers);
 
+  printf("[DB] Adding follow '%s' to user '%s'\n", user.c_str(), follower.c_str()); 
   m_csvFile_w.close();
 }
 

@@ -14,6 +14,8 @@ class ProfileManager {
     ProfileManager();
     ~ProfileManager();
 
+    void loadUsers();
+
     bool userExists(std::string username);
     bool follow(std::string follower, std::string userToFollow);
     std::list<std::string> followersOf(std::string username);

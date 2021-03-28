@@ -72,13 +72,6 @@ int main(int argc, char** argv) {
     inputWindow->addWidget(textInput);
 
     NotificationList* feedList = new NotificationList({1,1}, {60-2, inputWindow->position().y-3-1});
-    Notification n; n.sender="@alencar"; n.message="Alencar0"; n.date="Today";
-    feedList->addItem(n);
-    n.message="Alencar1"; feedList->addItem(n);
-    n.message="Alencar2"; feedList->addItem(n);
-    n.message="The WikiEditor extension provides an improved interface for editing wikitext. It is the wikitext editing interface that Wikipedia started using in 2010 for desktop"; feedList->addItem(n);
-    n.message="Alencar4"; feedList->addItem(n);
-    n.message="Alencar5"; feedList->addItem(n);
     feedWindow->addWidget(feedList);
     // ----------------------------------------------------------
     
@@ -145,6 +138,7 @@ void handleCommand(std::string command, TCPConnection* connection) {
   } else if (command.rfind("FOLLOW ", 0) == 0) {
     std::string username = removePrefix(command, "FOLLOW ");
     if (usernameIsValid(username)) {
+      mvwprintw(stdscr, 0,0,"Foi");
       Packet packet = Packet(FOLLOW, username.c_str());
       connection->send(&packet);
     }

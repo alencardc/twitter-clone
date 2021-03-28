@@ -29,7 +29,9 @@ int main(int argc, char** argv) {
 
     printf("[info] Server started! Listening at %s:%d\n", ip.c_str(), port);
     ProfileManager profileManager;
+    profileManager.loadUsers();
     NotificationManager notificationManager;
+    
     while(true) {
       TCPConnection* connection = server->accept();
       if (connection == NULL) {
