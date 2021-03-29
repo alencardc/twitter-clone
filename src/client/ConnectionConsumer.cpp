@@ -19,7 +19,7 @@ void* ConnectionConsumer::run() {
     packet = m_connection.receive();
     mvwprintw(stdscr, 0,92, "Length: %d", packet->length());
     auto splited = split(packet->payload(), "\n");
-    for (int i = 0; i < splited.size(); i++)
+    for (long unsigned i = 0; i < splited.size(); i++)
       mvwprintw(stdscr, 1+i,92, splited[i].c_str());
     if (packet == NULL) {
       //printf("Connection lost. Unable to reach the server.\n");

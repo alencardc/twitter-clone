@@ -25,7 +25,7 @@ bool usernameIsValid(std::string username);
 
 int main(int argc, char** argv) {
   if (argc != 4) { 
-    printf("Invalid parameters. Usage: %s <ip> <port> <username>", argv[0]);
+    printf("Invalid parameters. Usage: %s <ip> <port> <username>\n", argv[0]);
     return 1;
   }
 
