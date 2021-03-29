@@ -13,6 +13,7 @@ class Window {
   WINDOW* m_window;
   std::string m_name;
   std::vector<Widget*> m_widgets;
+  bool m_showBorder;
 
   friend class App;
 
@@ -22,6 +23,7 @@ class Window {
 
     Vector2 position();
     Vector2 size();
+    void setShowBorder(bool show);
 
     WINDOW* window();
 

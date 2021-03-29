@@ -11,6 +11,7 @@
 #include "ui/App.hpp"
 #include "ui/Window.hpp"
 #include "ui/Label.hpp"
+#include "ui/TimeoutLabel.hpp"
 #include "ui/TextInput.hpp"
 #include "ui/NotificationList.hpp"
 
@@ -43,8 +44,8 @@ int main(int argc, char** argv) {
   if (tryLogin(username, connection) == true) {
     // User Interface (UI) creation -----------------------------
     App app = App();
-    int maxX = app.maxX(); int maxY = app.maxY();
-    int width = 60; int pY = 2; int centerX = maxX/2-width/2;
+    int maxY = app.maxY();
+    int width = 60; int pY = 2;
     int inputHeight = 5; int sideBoxWidth = 25;
 
     Window* userWindow = app.createWindow({1, pY}, {sideBoxWidth, 3});
@@ -61,21 +62,29 @@ int main(int argc, char** argv) {
     usageWindow->addWidget(lExit); usageWindow->addWidget(lCommand);
     usageWindow->addWidget(lFeed); usageWindow->addWidget(lSend);
 
-    Window* inputWindow = app.createWindow({centerX, maxY-pY-inputHeight}, {width, inputHeight});
+    int inputXpos = usageWindow->position().x + usageWindow->size().x + 2*pY;
+    Window* inputWindow = app.createWindow({inputXpos, maxY-pY-inputHeight}, {width, inputHeight});
     inputWindow->addName("  Commands  ");
 
-    Window* feedWindow = app.createWindow({centerX, pY}, {width, inputWindow->position().y-3});
+    Window* feedWindow = app.createWindow({inputXpos, pY}, {width, inputWindow->position().y-3});
     feedWindow->addName("  Notifications feed  ");
     
     TextInput* textInput = new TextInput({1,1}, {inputWindow->size().x-2, inputWindow->size().y-2});
     textInput->setMaxSize(Notification::MAX_SIZE);
     inputWindow->addWidget(textInput);
 
-    NotificationList* feedList = new NotificationList({1,1}, {60-2, inputWindow->position().y-3-1});
+    NotificationList* feedList = new NotificationList({1,1}, {width-2, inputWindow->position().y-3-1});
     feedWindow->addWidget(feedList);
+
+    int responseY = inputWindow->position().y + inputWindow->size().y;
+    Window* responseWindow = app.createWindow({inputXpos, responseY}, {width, 2});
+    responseWindow->setShowBorder(false);
+    TimeoutLabel* tlResponse = new TimeoutLabel({0,0}, "");
+    tlResponse->setTimeout(4);
+    responseWindow->addWidget(tlResponse);
     // ----------------------------------------------------------
     
-    ConnectionConsumer packetReceiver = ConnectionConsumer(*connection, *feedList);
+    ConnectionConsumer packetReceiver = ConnectionConsumer(*connection, *feedList, *tlResponse);
     packetReceiver.start();
 
     // Client handle --------------------------------------------
@@ -106,7 +115,7 @@ bool tryLogin(std::string username, TCPConnection* connection) {
   connection->send(&request);
   Packet* response = connection->receive();
   
-  if(response->type() != (PacketType)4) { // OK
+  if(response->type() != SUCCESS) {
     printf("Unable to login: %s\n", response->payload());
     return false;
   }

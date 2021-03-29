@@ -3,7 +3,8 @@
 Window::Window(Vector2 position, Vector2 size): 
   m_position(position),
   m_size(size),
-  m_name("")
+  m_name(""),
+  m_showBorder(true)
 {
   m_window = newwin(size.y, size.x, position.y, position.x);
   noecho();
@@ -25,16 +26,28 @@ Vector2 Window::size() {
   return m_size;
 }
 
+void Window::setShowBorder(bool show) {
+  m_showBorder = show;
+}
+
 WINDOW* Window::window() {
   return m_window;
 }
 
 void Window::draw() {
   //werase(m_window);
-  for (auto &widget : m_widgets) {
-    widget->draw(*this);
+  
+  if (m_showBorder) {
+    box(m_window, 0, 0);
+    for (auto &widget : m_widgets) {
+      widget->draw(*this);
+    }
+  } else {
+    wborder(m_window, ' ', ' ', ' ',' ',' ',' ',' ',' ');
+    for (auto &widget : m_widgets) {
+      widget->draw(*this);
+    }
   }
-  box(m_window, 0, 0);
   if (m_name.empty() == false) {
     mvwprintw(m_window, 0, 2, m_name.c_str());
   }

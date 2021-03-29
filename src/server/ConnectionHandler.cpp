@@ -33,7 +33,7 @@ void* ConnectionHandler::run() {
     consumerThread->start();
 
 
-    Packet* response = new Packet(OK, "");
+    Packet* response = new Packet(SUCCESS, "");
     m_connection->send(response);
     delete response;
     printf("[thread=%lu][Producer][%s] session started\n",
@@ -61,7 +61,7 @@ void* ConnectionHandler::run() {
         response = route.execute();
       } else if (request->type() == LOGIN) {
         response = new Packet(ERROR, "Already logged in.");
-      } else { // OK, ERROR, NO_TYPE or undefined
+      } else { // SUCCESS, ERROR, NO_TYPE or undefined
         response = new Packet(ERROR, "Bad request.");
       }
 

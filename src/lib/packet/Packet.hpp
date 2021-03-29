@@ -9,7 +9,7 @@ enum PacketType {
   SEND,
   LOGIN,
   FOLLOW,
-  OK,
+  SUCCESS,
   ERROR,
   NO_TYPE,
 };

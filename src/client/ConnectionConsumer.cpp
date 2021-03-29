@@ -6,10 +6,12 @@
 
 ConnectionConsumer::ConnectionConsumer(
   TCPConnection& connection,
-  NotificationList& feed
+  NotificationList& feed,
+  TimeoutLabel& label
 ):
   m_connection(connection),
-  m_feed(feed)
+  m_feed(feed),
+  m_response(label)
 {}
 
 void* ConnectionConsumer::run() {
@@ -17,21 +19,21 @@ void* ConnectionConsumer::run() {
 
   while(true) {
     packet = m_connection.receive();
-    mvwprintw(stdscr, 0,92, "Length: %d", packet->length());
-    auto splited = split(packet->payload(), "\n");
-    for (long unsigned i = 0; i < splited.size(); i++)
-      mvwprintw(stdscr, 1+i,92, splited[i].c_str());
+    // mvwprintw(stdscr, 0,92, "Length: %d", packet->length());
+    // auto splited = split(packet->payload(), "\n");
+    // for (long unsigned i = 0; i < splited.size(); i++)
+    //   mvwprintw(stdscr, 1+i,92, splited[i].c_str());
     if (packet == NULL) {
-      //printf("Connection lost. Unable to reach the server.\n");
+      m_response.setText("Connection lost. Unable to reach the server.");
       break;
     } else {
       if (packet->type() == DATA) {
         Notification* notification = Notification::deserialize(packet->payload());
         m_feed.addItem(*notification);
         delete notification;
+      } else if (packet->type() == (PacketType)4 || packet->type() == ERROR) {
+        m_response.setText(packet->payload());
       }
-      //printf("[receivedOnConsumer]: %s\n", packet->serialize().c_str());
-      //m_queue.insert(packet);
     }
   }
 

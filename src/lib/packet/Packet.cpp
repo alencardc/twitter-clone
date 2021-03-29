@@ -97,8 +97,8 @@ const char* Packet::typeToString(PacketType type) {
       return "FOLLOW";
     case LOGIN:
       return "LOGIN";
-    case OK:
-      return "OK";
+    case SUCCESS:
+      return "SUCCESS";
     case ERROR:
       return "ERROR";
     case DATA:
@@ -116,8 +116,8 @@ PacketType Packet::stringToType(const char* buffer) {
     return FOLLOW;
   else if (s == "LOGIN")
     return LOGIN;
-  else if (s == "OK")
-    return OK;
+  else if (s == "SUCCESS")
+    return SUCCESS;
   else if (s == "ERROR")
     return ERROR;
   else if (s == "DATA")

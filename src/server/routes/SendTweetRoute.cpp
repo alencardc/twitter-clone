@@ -23,5 +23,5 @@ Packet* SendTweetRoute::execute() {
 
   m_notificationManager.send(notification, followers);
 
-  return new Packet(OK, ("Sent message: <" + message + "> for " + std::to_string(followers.size())).c_str());
+  return new Packet(SUCCESS, "Sent!");
 }

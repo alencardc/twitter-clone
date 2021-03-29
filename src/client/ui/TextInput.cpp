@@ -23,7 +23,8 @@ std::string TextInput::input(Window &win) {
         m_text.append(charBuffer);
       }
     } else if (event == KEY_BACKSPACE) {
-      m_text.pop_back();
+      if (m_text.empty() == false)
+        m_text.pop_back();
     }
     draw(win);
   }
