@@ -14,7 +14,6 @@ void TimeoutLabel::draw(Window &win) {
   m_mutex.lock();
   if (m_text.empty() == false) {
     if (m_timeoutSeconds+m_init > time(NULL)){
-     mvwprintw(stdscr, 0,0, m_text.c_str());
       mvwprintw(win.window(), position.y, position.x, m_text.c_str());
     }else
       mvwprintw(win.window(), position.y, position.x, std::string(m_text.size(), ' ').c_str());

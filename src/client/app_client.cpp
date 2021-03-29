@@ -147,7 +147,6 @@ void handleCommand(std::string command, TCPConnection* connection) {
   } else if (command.rfind("FOLLOW ", 0) == 0) {
     std::string username = removePrefix(command, "FOLLOW ");
     if (usernameIsValid(username)) {
-      mvwprintw(stdscr, 0,0,"Foi");
       Packet packet = Packet(FOLLOW, username.c_str());
       connection->send(&packet);
     }

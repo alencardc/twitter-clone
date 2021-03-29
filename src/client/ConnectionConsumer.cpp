@@ -19,10 +19,6 @@ void* ConnectionConsumer::run() {
 
   while(true) {
     packet = m_connection.receive();
-    // mvwprintw(stdscr, 0,92, "Length: %d", packet->length());
-    // auto splited = split(packet->payload(), "\n");
-    // for (long unsigned i = 0; i < splited.size(); i++)
-    //   mvwprintw(stdscr, 1+i,92, splited[i].c_str());
     if (packet == NULL) {
       m_response.setText("Connection lost. Unable to reach the server.");
       break;
@@ -31,7 +27,7 @@ void* ConnectionConsumer::run() {
         Notification* notification = Notification::deserialize(packet->payload());
         m_feed.addItem(*notification);
         delete notification;
-      } else if (packet->type() == (PacketType)4 || packet->type() == ERROR) {
+      } else if (packet->type() == SUCCESS || packet->type() == ERROR) {
         m_response.setText(packet->payload());
       }
     }
