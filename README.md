@@ -28,3 +28,6 @@ Para cancelar a escrita de um comando, aperte `F1` para retornar ao estado inici
 Aperte `F1` para retornar ao estado inicial.
 
 *Fechar aplicação:* Para fechar aplicação pode ser utilizado comando `Ctrl+D` ou apertar `F1` quando estiver no estado inicial.
+
+## Persistência
+Caso deseje acessar o arquivo em que é feita a persistência. Ele costuma ficar na raiz do projeto e é entitulado `Users.db`.
