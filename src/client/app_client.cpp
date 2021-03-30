@@ -53,6 +53,7 @@ int main(int argc, char** argv) {
     userWindow->addName("  Hello,  ");
     userWindow->addWidget(lName);
     int usageY = userWindow->position().y + userWindow->size().y + pY;
+    
     Window* usageWindow = app.createWindow({1, usageY}, {sideBoxWidth, 9});
     usageWindow->addName("  Usage  ");
     Label *lExit = new Label({1,1}, "F1 - Back/Exit");

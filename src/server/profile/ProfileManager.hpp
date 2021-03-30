@@ -14,6 +14,7 @@ class ProfileManager {
     ProfileManager();
     ~ProfileManager();
 
+    // Load users from persistency
     void loadUsers();
 
     bool userExists(std::string username);

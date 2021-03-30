@@ -21,7 +21,6 @@ void* ConnectionConsumer::run() {
     packet = m_connection.receive();
     if (packet == NULL) {
       m_response.setText("Connection lost. Unable to reach the server.");
-      break;
     } else {
       if (packet->type() == DATA) {
         Notification* notification = Notification::deserialize(packet->payload());

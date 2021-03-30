@@ -20,7 +20,6 @@ void* NotificationConsumer::run() {
   printf("[thread=%lu][Consumer][%s] subscribed...\n", getId(), m_username.c_str());
 
   while(shouldStop() == false) {
-    //printf("[thread=%lu][Consumer][%s] waiting...\n", getId(), m_username.c_str());
 
     auto notificationOrError = m_queue.tryRemoveFor(1500);
 

@@ -48,6 +48,7 @@ void* ConnectionHandler::run() {
         sessionToken.first.c_str(),
         request->typeString().c_str()
       );
+      
       if (request->type() == SEND) {
         SendTweetRoute route = SendTweetRoute(
           sessionToken.first, 

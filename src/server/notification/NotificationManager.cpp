@@ -14,6 +14,7 @@ void NotificationManager::send(
   std::list<std::string> followers
 ) {
   m_mutex.lock();
+  
   if (createNotification(notification) == true) {
     // Reference to the notification inserted in the list for username
     Notification& notificationRef = m_notifications[notification.username].back();
