@@ -68,3 +68,11 @@ TCPConnection* TCPServer::accept() {
 
   return new TCPConnection(handleSocketId, std::string(ip), ntohs(socketAddress.sin_port));
 }
+
+std::string TCPServer::ip() {
+  return m_ip;
+}
+
+int TCPServer::port() {
+  return m_port;
+}

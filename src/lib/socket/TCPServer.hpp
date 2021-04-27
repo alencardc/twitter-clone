@@ -20,6 +20,9 @@ class TCPServer {
     bool isListening();
     bool start();
     TCPConnection* accept();
+
+    std::string ip();
+    int port();
   
   private: 
     TCPServer() {}

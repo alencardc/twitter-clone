@@ -5,6 +5,11 @@
 #include "Serializable.hpp"
 
 enum PacketType {
+  ACK,
+  IS_ALIVE,
+  NEW_REPLICA,
+  REPLICAS,
+  ELECTION,
   DATA,
   SEND,
   LOGIN,

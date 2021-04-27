@@ -91,6 +91,16 @@ Packet* Packet::deserialize(const char* rawData) {
 
 const char* Packet::typeToString(PacketType type) {
   switch (type) {
+    case ACK:
+      return "ACK";
+    case NEW_REPLICA:
+      return "NEW_REPLICA";
+    case REPLICAS:
+      return "REPLICAS";
+    case IS_ALIVE:
+      return "IS_ALIVE";
+    case ELECTION:
+      return "ELECTION";
     case SEND:
       return "SEND";
     case FOLLOW:
@@ -110,7 +120,17 @@ const char* Packet::typeToString(PacketType type) {
 
 PacketType Packet::stringToType(const char* buffer) {
   std::string s = buffer;
-  if (s == "SEND")
+  if (s == "ACK")
+    return ACK;
+  else if (s == "NEW_REPLICA")
+    return NEW_REPLICA;
+  else if (s == "REPLICAS")
+    return REPLICAS;
+  else if (s == "IS_ALIVE")
+    return IS_ALIVE;
+  else if (s == "ELECTION")
+    return ELECTION;
+  else if (s == "SEND")
     return SEND;
   else if (s == "FOLLOW")
     return FOLLOW;
