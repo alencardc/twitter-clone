@@ -99,8 +99,14 @@ const char* Packet::typeToString(PacketType type) {
       return "REPLICAS";
     case IS_ALIVE:
       return "IS_ALIVE";
+    case SERVER_DOWN:
+      return "SERVER_DOWN";
     case ELECTION:
       return "ELECTION";
+    case NEW_LEADER:
+      return "NEW_LEADER";
+    case COORDINATOR:
+      return "COORDINATOR";
     case SEND:
       return "SEND";
     case FOLLOW:
@@ -128,8 +134,14 @@ PacketType Packet::stringToType(const char* buffer) {
     return REPLICAS;
   else if (s == "IS_ALIVE")
     return IS_ALIVE;
+  else if (s == "SERVER_DOWN")
+    return SERVER_DOWN;
   else if (s == "ELECTION")
     return ELECTION;
+  else if (s == "NEW_LEADER")
+    return NEW_LEADER;
+  else if (s == "COORDINATOR")
+    return COORDINATOR;
   else if (s == "SEND")
     return SEND;
   else if (s == "FOLLOW")

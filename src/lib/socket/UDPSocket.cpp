@@ -1,4 +1,5 @@
 #include <string.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -6,6 +7,10 @@
 #include "UDPSocket.hpp"
 
 UDPSocket::UDPSocket() {}
+
+UDPSocket::~UDPSocket() {
+  close();
+}
 
 UDPSocket* UDPSocket::create() {
   int socketDescr = socket(AF_INET, SOCK_DGRAM, 0);
@@ -100,6 +105,10 @@ Packet* UDPSocket::receiveFrom(std::string* senderIp, int* senderPort, bool wait
   setsockopt(m_socketDescriptor, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
 
   return NULL;
+}
+
+void UDPSocket::close() {
+  ::close(m_socketDescriptor);
 }
 
 std::string UDPSocket::ip() {

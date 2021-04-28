@@ -7,9 +7,12 @@
 enum PacketType {
   ACK,
   IS_ALIVE,
+  SERVER_DOWN,
   NEW_REPLICA,
   REPLICAS,
+  NEW_LEADER,
   ELECTION,
+  COORDINATOR,
   DATA,
   SEND,
   LOGIN,

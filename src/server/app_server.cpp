@@ -49,9 +49,17 @@ int main(int argc, char** argv) {
       if (isReplica == true) {
         ReplicaHandler* replicaHandler = new ReplicaHandler(internalSock, profileManager, notificationManager);
         replicaHandler->start();
-        printf("replica ended");
-        exit(0);
+        // When it arrives here, means that this process was elected the leader
+        isReplica = false;
+        delete replicaHandler;
+        printf("replica ended\n");
       } else { // It's the main server
+        delete internalSock;
+        internalSock = UDPSocket::create();
+        if (internalSock == NULL || internalSock->bind(DEFAULT_IP, DEFAULT_INTERNAL_PORT) == false) {
+          printf("[error] Unable to start interal socket!\n");
+          return 1;
+        }
         ServerHandler* serverHandler = new ServerHandler(internalSock, profileManager, notificationManager);
         serverHandler->start();
 

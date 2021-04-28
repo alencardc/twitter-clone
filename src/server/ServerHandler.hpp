@@ -5,7 +5,7 @@
 #include "lib/Thread.hpp"
 #include "lib/socket/UDPSocket.hpp"
 #include "lib/socket/TCPServer.hpp"
-#include "lib/socket/HostAddress.hpp"
+#include "server/ReplicaInfo.hpp"
 #include "server/profile/ProfileManager.hpp"
 #include "server/notification/NotificationManager.hpp"
 
@@ -15,7 +15,7 @@ class ServerHandler {
   UDPSocket* m_socket;
   ProfileManager& m_profileManager;
   NotificationManager& m_notificationManager;
-  std::vector<HostAddress> m_replicas;
+  std::vector<ReplicaInfo> m_replicas;
 
   public: 
     ServerHandler(
@@ -26,6 +26,7 @@ class ServerHandler {
     void start();
 
   private: 
+    void handleNewReplica(std::string senderIp, int senderPort);
     void* run();
 };
 

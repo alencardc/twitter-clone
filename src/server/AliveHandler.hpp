@@ -6,12 +6,13 @@
 #include "lib/SyncAccess.hpp"
 
 class AliveHandler : public Thread {
+  SyncAccess<bool>& m_isLeader;
   SyncAccess<bool>& m_election;
   std::string m_ownerIp;
   int m_ownerPort;
 
   public:
-    AliveHandler(SyncAccess<bool>& election, std::string ownerIp, int ownerPort);
+    AliveHandler(SyncAccess<bool>& isLeader, SyncAccess<bool>& election, std::string ownerIp, int ownerPort);
   private:
     void* run();
 

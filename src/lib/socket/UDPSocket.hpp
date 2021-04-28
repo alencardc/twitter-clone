@@ -16,10 +16,12 @@ class UDPSocket {
   int m_port;
   
   public:
+    ~UDPSocket();
     static UDPSocket* create();
     bool bind(std::string ip, int port);
     bool sendTo(Packet* packet, std::string destIp, int destPort, bool wait=true);
     Packet* receiveFrom(std::string* senderIp, int* senderPort, bool wait=false);
+    void close();
 
     std::string ip();
     int port();
