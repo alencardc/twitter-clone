@@ -5,6 +5,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "TCPConnection.hpp"
 
 TCPConnection::TCPConnection(int socket, std::string ipAddress, int portNumber):
@@ -26,6 +28,20 @@ std::string TCPConnection::getConnectionIp() {
 
 int TCPConnection::getConnectionPort() {
   return m_port;
+}
+
+std::string TCPConnection::getPeerIp() {
+  struct sockaddr_in addr;
+  socklen_t  len = sizeof(addr);
+  getpeername(m_socketDescriptor, (struct sockaddr*)&addr, &len);
+  return inet_ntoa(addr.sin_addr);
+}
+
+int TCPConnection::getPeerPort() {
+  struct sockaddr_in addr;
+  socklen_t  len = sizeof(addr);
+  getpeername(m_socketDescriptor, (struct sockaddr*)&addr, &len);
+  return ntohs(addr.sin_port);
 }
 
 ssize_t TCPConnection::send(const char* buffer, size_t length) {

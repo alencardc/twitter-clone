@@ -1,32 +1,27 @@
-#ifndef __ReplicaHandler2_hpp__
-#define __ReplicaHandler2_hpp__
+#ifndef __ReplicaHandler_hpp__
+#define __ReplicaHandler_hpp__
 
 #include "lib/Thread.hpp"
 #include "lib/SyncAccess.hpp"
-#include "lib/socket/UDPSocket.hpp"
+#include "lib/socket/TCPConnection.hpp"
 #include "server/ReplicaInfo.hpp"
+#include "server/replication/ReplicaVector.hpp"
 #include "server/profile/ProfileManager.hpp"
 #include "server/notification/NotificationManager.hpp"
 
-#include "config.hpp"
+#include "server/config.hpp"
 
-class ReplicaHandler2 {
-  UDPSocket* m_socket;
-  ProfileManager& m_profileManager;
-  NotificationManager& m_notificationManager;
+class ReplicaHandler : public Thread {
+  TCPConnection* m_connection;
+  ReplicaVector& m_replicas;
 
   SyncAccess<bool> m_isRunningElection;
-  int m_id;
-  std::vector<ReplicaInfo> m_replicas;
 
   public: 
-    ReplicaHandler2(
-      UDPSocket* socket,
-      ProfileManager& profileManager,
-      NotificationManager& notificationManager);
-    
-    // Start running as replica. Call method run()
-    void start();
+    ReplicaHandler(
+      TCPConnection* connection,
+      ReplicaVector& replicas
+      );
 
   private: 
     // Handle REPLICAS request. Set the m_replicas vector to contain all current replicas
@@ -39,4 +34,4 @@ class ReplicaHandler2 {
     void* run();
 };
 
-#endif // __ReplicaHandler2_hpp__
+#endif // __ReplicaHandler_hpp__

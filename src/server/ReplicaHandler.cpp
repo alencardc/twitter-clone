@@ -4,7 +4,7 @@
 #include "AliveHandler.hpp"
 #include "ElectionHandler.hpp"
 
-ReplicaHandler::ReplicaHandler(
+ReplicaHandler2::ReplicaHandler2(
   UDPSocket* socket,
   ProfileManager& profileManager,
   NotificationManager& notificationManager
@@ -16,14 +16,14 @@ ReplicaHandler::ReplicaHandler(
   m_isRunningElection.set(false);
 };
 
-void ReplicaHandler::start() {
+void ReplicaHandler2::start() {
   if (m_socket == NULL) {
     return;
   }
   run();
 }
 
-void* ReplicaHandler::run() {
+void* ReplicaHandler2::run() {
   std::string mainServerIp = DEFAULT_IP;
   int mainServerPort = DEFAULT_INTERNAL_PORT;
 
@@ -112,7 +112,7 @@ void* ReplicaHandler::run() {
   return NULL;
 }
 
-void ReplicaHandler::handleReplicas(std::string payload) {
+void ReplicaHandler2::handleReplicas(std::string payload) {
   m_replicas.clear();
   if (payload.length() > 0) {
     std::stringstream stream;
@@ -128,7 +128,7 @@ void ReplicaHandler::handleReplicas(std::string payload) {
   }
 }
 
-void ReplicaHandler::handleNewReplica(std::string payload) {
+void ReplicaHandler2::handleNewReplica(std::string payload) {
   if (payload.length() > 0) {
     std::stringstream stream;
     stream << payload;

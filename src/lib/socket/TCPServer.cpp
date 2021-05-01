@@ -2,6 +2,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "TCPServer.hpp"
@@ -67,6 +68,37 @@ TCPConnection* TCPServer::accept() {
   inet_ntop(AF_INET, &socketAddress.sin_addr, ip, sizeof(ip));
 
   return new TCPConnection(handleSocketId, std::string(ip), ntohs(socketAddress.sin_port));
+}
+
+TCPConnection* TCPServer::accept(int milliTimeout) {
+  if (m_listening == false) {
+    return NULL;
+  }
+
+  struct timeval tv;
+  tv.tv_sec = 0;
+  tv.tv_usec = milliTimeout * 1000;
+  fd_set readfds;
+  FD_ZERO(&readfds);
+  FD_SET(m_listeningSocket, &readfds);
+
+  if (select(m_listeningSocket+1, &readfds, NULL, NULL, &tv) > 0) {
+    struct sockaddr_in socketAddress;
+    socklen_t size = sizeof(socketAddress);
+    memset(&socketAddress, 0, sizeof(socketAddress));
+    int handleSocketId = ::accept(m_listeningSocket, (struct sockaddr*) &socketAddress, &size);
+
+    if (handleSocketId < 0) {
+      printf("Unable to create a socket to handle connection!\n");
+      return NULL;
+    }
+
+    char ip[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &socketAddress.sin_addr, ip, sizeof(ip));
+
+    return new TCPConnection(handleSocketId, std::string(ip), ntohs(socketAddress.sin_port));
+  }
+  return NULL;
 }
 
 std::string TCPServer::ip() {

@@ -20,6 +20,7 @@ class TCPServer {
     bool isListening();
     bool start();
     TCPConnection* accept();
+    TCPConnection* accept(int milliTimeout);
 
     std::string ip();
     int port();
