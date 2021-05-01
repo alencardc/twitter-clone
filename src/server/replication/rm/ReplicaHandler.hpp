@@ -13,14 +13,17 @@
 
 class ReplicaHandler : public Thread {
   TCPConnection* m_connection;
+  ReplicaInfo m_info;
   ReplicaVector& m_replicas;
+  SyncAccess<bool>& m_isRunningElection;
 
-  SyncAccess<bool> m_isRunningElection;
 
   public: 
     ReplicaHandler(
       TCPConnection* connection,
-      ReplicaVector& replicas
+      ReplicaInfo info,
+      ReplicaVector& replicas,
+      SyncAccess<bool>& electing
       );
 
   private: 

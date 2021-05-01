@@ -25,10 +25,12 @@ void handleReplica(TCPServer* server, ProfileManager& profile, NotificationManag
   ReplicaInfo info = ReplicaInfo(-1, server->ip(), server->port());
   SyncAccess<bool> shouldStop;
   shouldStop.set(false);
+  SyncAccess<bool> isElecting;
+  isElecting.set(false);
 
   TCPClient client;
   TCPConnection* leaderConn = client.connect(DEFAULT_IP, DEFAULT_INTERNAL_PORT);
-  LeaderConnection* leaderConnHandler = new LeaderConnection(leaderConn, replicas, info, profile, notification);
+  LeaderConnection* leaderConnHandler = new LeaderConnection(leaderConn, replicas, info, isElecting, profile, notification);
   leaderConnHandler->start();
 
   std::vector<ReplicaHandler*> handlers;
@@ -46,7 +48,7 @@ void handleReplica(TCPServer* server, ProfileManager& profile, NotificationManag
       continue;
 
     try {
-      ReplicaHandler* handler = new ReplicaHandler(connection, replicas);
+      ReplicaHandler* handler = new ReplicaHandler(connection, info, replicas, isElecting);
       handler->start();
       handlers.push_back(handler);
     } catch(std::bad_alloc& e) {

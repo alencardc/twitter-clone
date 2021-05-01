@@ -1,22 +1,24 @@
 #include <cstring>
 #include <sstream>
 #include "LeaderConnection.hpp"
+#include "lib/socket/TCPClient.hpp"
+#include "server/replication/Election.hpp"
 
 LeaderConnection::LeaderConnection(
   TCPConnection* connection,
   ReplicaVector& replicas,
   ReplicaInfo& info,
+  SyncAccess<bool>& election,
   ProfileManager& profileManager,
   NotificationManager& notificationManager
 ): 
   m_connection(connection),
   m_replicas(replicas),
   m_info(info),
+  m_isRunningElection(election),
   m_profileManager(profileManager),
   m_notificationManager(notificationManager)
-{
-  m_isRunningElection.set(false);
-};
+{};
 
 
 
@@ -26,6 +28,7 @@ void* LeaderConnection::run() {
   
   Packet* request;
   while((request = m_connection->receive()) != NULL) {
+
     if (request->type() == REPLICAS) {
       std::vector<ReplicaInfo> vector;
       std::string payload = request->payload();
@@ -47,6 +50,13 @@ void* LeaderConnection::run() {
     } else if (true) {
 
     }
+  }
+
+  // Leader failed, start election
+  if (m_isRunningElection.get() == false) {
+    m_isRunningElection.set(true);
+    bool electedAsLeader = Election::startElection(m_info, m_replicas.toVector());
+    m_isRunningElection.set(false);
   }
   printf("Leader failed!\n");
   return NULL;

@@ -96,6 +96,30 @@ Packet* TCPConnection::receive() {
   return NULL;
 }
 
+Packet* TCPConnection::receive(int milliTimeout) {
+  if (milliTimeout <= 0)
+    return receive();
+
+  if (waitForSocketEvent(milliTimeout) == true) {
+    return receive();
+  }
+  return NULL;
+}
+
+bool TCPConnection::waitForSocketEvent(int milliTimeout) {
+  fd_set sdset;
+  struct timeval tv;
+
+  tv.tv_sec = 0;
+  tv.tv_usec = milliTimeout * 1000;
+  FD_ZERO(&sdset);
+  FD_SET(m_socketDescriptor, &sdset);
+  if (select(m_socketDescriptor+1, &sdset, NULL, NULL, &tv) > 0){
+    return true;
+  }
+  return false;
+}
+
 Packet* TCPConnection::breakPayload(Packet* packet) {
   std::string payload = packet->payload();
   if ((unsigned int)packet->length() < payload.size()) {

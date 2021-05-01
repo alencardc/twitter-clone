@@ -27,6 +27,8 @@ class TCPConnection {
     ssize_t send(Packet* packet);
     ssize_t receive(char* buffer, size_t length);
     Packet* receive();
+    Packet* receive(int milliTimeout);
+    bool waitForSocketEvent(int milliTimeout);
 
     ~TCPConnection();
   

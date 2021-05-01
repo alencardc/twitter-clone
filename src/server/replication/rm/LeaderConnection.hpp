@@ -15,16 +15,17 @@ class LeaderConnection : public Thread {
   TCPConnection* m_connection;
   ReplicaVector& m_replicas;
   ReplicaInfo& m_info;
+  SyncAccess<bool>& m_isRunningElection;
   ProfileManager& m_profileManager;
   NotificationManager& m_notificationManager;
 
-  SyncAccess<bool> m_isRunningElection;
 
   public: 
     LeaderConnection(
       TCPConnection* connection,
       ReplicaVector& replicas,
       ReplicaInfo& info,
+      SyncAccess<bool>& election,
       ProfileManager& profileManager,
       NotificationManager& notificationManager);
     
