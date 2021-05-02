@@ -2,7 +2,6 @@
 #include <sstream>
 #include "LeaderConnection.hpp"
 #include "lib/socket/TCPClient.hpp"
-#include "server/replication/Election.hpp"
 
 LeaderConnection::LeaderConnection(
   TCPConnection* connection,
@@ -23,7 +22,7 @@ LeaderConnection::LeaderConnection(
 
 
 void* LeaderConnection::run() {
-  Packet sendPacket = Packet(NEW_REPLICA, m_info.serialize().c_str());
+  /*Packet sendPacket = Packet(NEW_REPLICA, m_info.serialize().c_str());
   m_connection->send(&sendPacket);
   
   Packet* request;
@@ -58,6 +57,6 @@ void* LeaderConnection::run() {
     bool electedAsLeader = Election::startElection(m_info, m_replicas.toVector());
     m_isRunningElection.set(false);
   }
-  printf("Leader failed!\n");
+  printf("Leader failed!\n");*/
   return NULL;
 }

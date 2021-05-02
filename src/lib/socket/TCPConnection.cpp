@@ -12,14 +12,24 @@
 TCPConnection::TCPConnection(int socket, std::string ipAddress, int portNumber):
   m_socketDescriptor(socket),
   m_ip(ipAddress),
-  m_port(portNumber)
+  m_port(portNumber),
+  m_isClosed(false)
 {
   srand(time(NULL));
   m_sequenceNumber = rand() % 16384; 
 }
 
+bool TCPConnection::isClosed() {
+  return m_isClosed;
+}
+
+void TCPConnection::close() {
+  m_isClosed = true;
+  ::close(m_socketDescriptor); // Closes socket of the given descriptor
+}
+
 TCPConnection::~TCPConnection() {
-  close(m_socketDescriptor); // Closes socket of the given descriptor
+  close(); // Closes socket of the given descriptor
 }
 
 std::string TCPConnection::getConnectionIp() {

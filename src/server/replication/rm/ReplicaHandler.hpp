@@ -14,16 +14,22 @@
 class ReplicaHandler : public Thread {
   TCPConnection* m_connection;
   ReplicaInfo m_info;
-  ReplicaVector& m_replicas;
   SyncAccess<bool>& m_isRunningElection;
+  bool m_isConnectedToLeader;
+  SyncAccess<bool>& m_lostElection;
+  std::mutex& m_mutex;
+  std::condition_variable& m_cv;
 
 
   public: 
     ReplicaHandler(
       TCPConnection* connection,
       ReplicaInfo info,
-      ReplicaVector& replicas,
-      SyncAccess<bool>& electing
+      SyncAccess<bool>& electing,
+      bool isConnectedToLeader,
+      SyncAccess<bool>& lostElection,
+      std::mutex& mutex,
+      std::condition_variable& cv
       );
 
   private: 

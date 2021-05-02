@@ -33,6 +33,8 @@ bool TCPServer::start() {
   memset(socketAddress.sin_zero, 0, sizeof(socketAddress.sin_zero));
 
   m_listeningSocket = socket(PF_INET, SOCK_STREAM, 0);
+  int enable = 1;
+  setsockopt(m_listeningSocket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
   int bindStatus = bind(m_listeningSocket, (struct sockaddr*)&socketAddress, sizeof(socketAddress));
   if (bindStatus != 0) {
     printf("Unable to bind server socket.\n");

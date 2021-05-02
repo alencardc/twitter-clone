@@ -16,6 +16,10 @@ class ReplicaInfo {
     id(idParam), ip(ipParam), port(portParam) 
   {}
 
+  bool isValid() {
+    return !(id < 0 && port < 0 && ip.size() == 0);
+  }
+
   std::string serialize() {
     std::stringstream stream;
     stream << id << " " << ip << " " << port;

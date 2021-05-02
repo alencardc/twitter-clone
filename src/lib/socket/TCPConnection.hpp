@@ -10,6 +10,7 @@ class TCPConnection {
   int m_socketDescriptor;
   std::string m_ip;
   int m_port;
+  bool m_isClosed;
   int m_sequenceNumber;
   std::string m_buffer;
 
@@ -30,6 +31,8 @@ class TCPConnection {
     Packet* receive(int milliTimeout);
     bool waitForSocketEvent(int milliTimeout);
 
+    bool isClosed();
+    void close();
     ~TCPConnection();
   
   private:

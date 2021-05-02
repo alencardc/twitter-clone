@@ -91,6 +91,8 @@ Packet* Packet::deserialize(const char* rawData) {
 
 const char* Packet::typeToString(PacketType type) {
   switch (type) {
+    case ANSWER:
+      return "ANSWER";
     case ACK:
       return "ACK";
     case NEW_REPLICA:
@@ -128,6 +130,8 @@ PacketType Packet::stringToType(const char* buffer) {
   std::string s = buffer;
   if (s == "ACK")
     return ACK;
+  else if (s == "ANSWER")
+    return ANSWER;
   else if (s == "NEW_REPLICA")
     return NEW_REPLICA;
   else if (s == "REPLICAS")

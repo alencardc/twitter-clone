@@ -6,6 +6,7 @@
 
 enum PacketType {
   ACK,
+  ANSWER,
   IS_ALIVE,
   SERVER_DOWN,
   NEW_REPLICA,

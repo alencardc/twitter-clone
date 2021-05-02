@@ -24,6 +24,9 @@ class ReplicaVector {
     std::vector<ReplicaInfo>::iterator begin();
     std::vector<ReplicaInfo>::iterator end();
 
+    std::string serialize();
+    static std::vector<ReplicaInfo> deserialize(std::string raw);
+
   private:
     int getNextId();
 };
