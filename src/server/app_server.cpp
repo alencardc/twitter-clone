@@ -15,7 +15,7 @@
 #include "lib/socket/TCPServer.hpp"
 #include "lib/socket/TCPClient.hpp"
 #include "server/replication/rm/ReplicaHandler.hpp"
-#include "server/ConnectionHandler.hpp" 
+#include "server/ServerHandler.hpp" 
 #include "server/profile/ProfileManager.hpp"
 #include "server/notification/NotificationManager.hpp"
 
@@ -126,6 +126,8 @@ int main(int argc, char** argv) {
 
   ProfileManager profileManager;
   NotificationManager notificationManager;
+  ServerHandler* notificationServer;
+
   if (isLeader == true)
     profileManager.loadUsers();
   
@@ -149,7 +151,9 @@ int main(int argc, char** argv) {
     while (true) {
 
       if (isLeader == true) {
-        // Start notification server at DEFAULT_IP:DEFAULT_INTERNAL_PORT
+        // Start notification server at DEFAULT_IP:DEFAULT_SERVER_PORT
+        notificationServer = new ServerHandler(ip, DEFAULT_SERVER_PORT, profileManager, notificationManager);
+        notificationServer->start();
       }
 
       if (isLeader == false && leaderConn == NULL) {
