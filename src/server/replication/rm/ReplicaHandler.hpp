@@ -4,7 +4,7 @@
 #include "lib/Thread.hpp"
 #include "lib/SyncAccess.hpp"
 #include "lib/socket/TCPConnection.hpp"
-#include "server/ReplicaInfo.hpp"
+#include "server/replication/ReplicaInfo.hpp"
 #include "server/replication/ReplicaVector.hpp"
 #include "server/profile/ProfileManager.hpp"
 #include "server/notification/NotificationManager.hpp"

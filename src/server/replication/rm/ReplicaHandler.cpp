@@ -1,9 +1,8 @@
 #include <cstring>
 #include <sstream>
-#include <mutex>
+#include <mutex> 
 #include <condition_variable>
 #include "ReplicaHandler.hpp"
-#include "server/replication/Election.hpp"
 
 ReplicaHandler::ReplicaHandler(
   TCPConnection* connection,

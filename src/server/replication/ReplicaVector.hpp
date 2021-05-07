@@ -4,7 +4,7 @@
 #include <vector>
 #include <mutex>
 #include <condition_variable>
-#include "server/ReplicaInfo.hpp"
+#include "server/replication/ReplicaInfo.hpp"
 
 class ReplicaVector {
   std::vector<ReplicaInfo> m_vector;
