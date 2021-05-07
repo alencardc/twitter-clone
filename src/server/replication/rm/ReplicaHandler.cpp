@@ -58,7 +58,7 @@ void* ReplicaHandler::run() {
       if (payload.size() > 0) {
         printf("[Replica] Received COORDINATOR from %s\n", payload.c_str());
         m_isConnectedToLeader = true;
-        m_isRunningElection.set(false);
+        //m_isRunningElection.set(false);
       }
 
     } else if (request->type() == ANSWER) {

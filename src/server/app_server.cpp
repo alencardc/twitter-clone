@@ -331,9 +331,8 @@ int main(int argc, char** argv) {
 
         isLeader = true;
         delete leaderConn; leaderConn = NULL;
-        startElection.set(false);
       }
-
+      startElection.set(false);
       lostElection.set(false);
     }
   } catch (std::bad_alloc& e) {
