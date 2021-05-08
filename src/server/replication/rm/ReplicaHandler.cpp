@@ -7,6 +7,8 @@
 ReplicaHandler::ReplicaHandler(
   TCPConnection* connection,
   ReplicaInfo info,
+  ProfileManager& profileManager,
+  NotificationManager& notificationManager,
   SyncAccess<bool>& electing,
   bool isConnectedToLeader,
   SyncAccess<bool>& lostElection,
@@ -15,6 +17,8 @@ ReplicaHandler::ReplicaHandler(
 ): 
   m_connection(connection),
   m_info(info),
+  m_profileManager(profileManager),
+  m_notificationManager(notificationManager),
   m_isRunningElection(electing),
   m_isConnectedToLeader(isConnectedToLeader),
   m_lostElection(lostElection),
@@ -67,7 +71,13 @@ void* ReplicaHandler::run() {
       }
       m_mutex.unlock();
       m_cv.notify_one();
-    }
+    
+    } else if (request->type() == UPDATE_PROFILE) {
+      printf("[Replicas] Received PROFILE update!\n");
+      ProfileManager updatedManager;
+      updatedManager.deserialize(request->payload());
+      m_profileManager.update(updatedManager);
+    } 
 
     delete request; request = NULL;
   }

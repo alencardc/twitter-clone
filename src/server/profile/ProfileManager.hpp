@@ -3,6 +3,7 @@
 
 #include <list>
 #include <mutex>
+#include <functional>
 #include <unordered_map>
 #include "User.hpp"
 
@@ -10,7 +11,9 @@ class ProfileManager {
   std::unordered_map<std::string, User> m_users;
   std::mutex m_mutex;
 
+
   public:
+    std::function<bool(ProfileManager&)> onUpdateCallback;
     ProfileManager();
     ~ProfileManager();
 
@@ -24,6 +27,10 @@ class ProfileManager {
     int activeSessionCount(std::string username);
     bool startSession(std::string username, Session session);
     void closeSession(std::string username, long unsigned int id);
+
+    void update(ProfileManager& manager);
+    std::string serialize();
+    void deserialize(std::string raw);
 };
 
 #endif // __ProfileManager_hpp__

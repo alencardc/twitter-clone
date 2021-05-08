@@ -19,6 +19,8 @@
 #include "server/profile/ProfileManager.hpp"
 #include "server/notification/NotificationManager.hpp"
 
+#include "server/replication/ReplicaManager.hpp"
+
 #include "config.hpp"
 
 bool isClosed(std::pair<TCPConnection*, ReplicaInfo> pair) {
@@ -102,6 +104,19 @@ void sendState(
   conn->send(&statePacket);
 }
 
+bool sendUpdateToReplicas(ProfileManager& manager) {
+  
+  printf("[EVENT] Received event!\n");
+  printf("Before:\n%s\n\n", manager.serialize().c_str());
+  ProfileManager tmp;
+  tmp.deserialize(manager.serialize());
+  printf("After:\n%s\n\n", tmp.serialize().c_str());
+
+  return true;
+}
+
+
+
 int main(int argc, char** argv) {
   if (argc < 2 || argc > 3) {
     printf("Invalid parameters.\n");
@@ -123,8 +138,14 @@ int main(int argc, char** argv) {
   }
 
   ReplicaInfo myInfo = ReplicaInfo(-1, ip, rmPort);
-
-  ProfileManager profileManager;
+  ReplicaManager rm(
+    myInfo, DEFAULT_IP, DEFAULT_SERVER_PORT,
+    isLeader, DEFAULT_IP, leaderPort
+  );
+  rm.start();
+  /*
+  ProfileManager profileManager; 
+  profileManager.onUpdateCallback = sendUpdateToReplicas;
   NotificationManager notificationManager;
   ServerHandler* notificationServer;
 
@@ -266,6 +287,6 @@ int main(int argc, char** argv) {
     }
   } catch (std::bad_alloc& e) {
     printf("[error] bad_alloc caught: %s\n", e.what());
-  }
+  }*/
   return 0;
 }

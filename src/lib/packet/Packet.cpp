@@ -109,6 +109,10 @@ const char* Packet::typeToString(PacketType type) {
       return "NEW_LEADER";
     case COORDINATOR:
       return "COORDINATOR";
+    case UPDATE_PROFILE:
+      return "UPDATE_PROFILE";
+    case UPDATE_NOTIFICATION:
+      return "UPDATE_NOTIFICATION";
     case SEND:
       return "SEND";
     case FOLLOW:
@@ -146,6 +150,10 @@ PacketType Packet::stringToType(const char* buffer) {
     return NEW_LEADER;
   else if (s == "COORDINATOR")
     return COORDINATOR;
+  else if (s == "UPDATE_PROFILE")
+    return UPDATE_PROFILE;
+  else if (s == "UPDATE_NOTIFICATION")
+    return UPDATE_NOTIFICATION;
   else if (s == "SEND")
     return SEND;
   else if (s == "FOLLOW")

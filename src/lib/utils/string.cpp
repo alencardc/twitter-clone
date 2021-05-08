@@ -68,3 +68,30 @@ std::string beautifyTime(long unsigned timestamp) {
   strftime(buffer, sizeof(buffer), "%d %h %Y at %T", timeinfo);
   return std::string(buffer);
 }
+
+std::string joinStringVector(std::vector<std::string> vec, std::string delimiter) {
+  if (vec.size() < 1)
+    return "";
+  
+  std::string string = vec[0];
+  for (unsigned i = 1; i <  vec.size(); i++) {
+    string.append(delimiter + vec[i]);
+  }
+  return string;
+}
+
+std::string joinStringList(std::list<std::string> list, std::string delimiter) {
+  if (list.size() < 1)
+    return "";
+  
+  std::string string;
+  bool first = true;
+  for (std::string s : list) {
+    if (first) {
+      string.append(s);
+      first = false;
+    } else 
+      string.append(delimiter + s);
+  }
+  return string;
+}

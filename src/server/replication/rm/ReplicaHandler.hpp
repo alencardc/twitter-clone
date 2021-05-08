@@ -14,6 +14,10 @@
 class ReplicaHandler : public Thread {
   TCPConnection* m_connection;
   ReplicaInfo m_info;
+
+  ProfileManager& m_profileManager;
+  NotificationManager& m_notificationManager;
+
   SyncAccess<bool>& m_isRunningElection;
   bool m_isConnectedToLeader;
   SyncAccess<bool>& m_lostElection;
@@ -25,6 +29,8 @@ class ReplicaHandler : public Thread {
     ReplicaHandler(
       TCPConnection* connection,
       ReplicaInfo info,
+      ProfileManager& profileManager,
+      NotificationManager& notificationManager,
       SyncAccess<bool>& electing,
       bool isConnectedToLeader,
       SyncAccess<bool>& lostElection,
