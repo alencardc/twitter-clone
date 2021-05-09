@@ -15,6 +15,8 @@ class Notification : public Serializable {
     Notification();
 
     std::string serialize();
+    std::string serializeAll();
+    void deserializeAll(std::string rawData);
     Notification* deserialize(const char* rawData);
 };
 

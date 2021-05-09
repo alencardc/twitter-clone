@@ -3,6 +3,7 @@
 
 #include <list>
 #include <mutex>
+#include <vector>
 #include <functional>
 #include <unordered_map>
 #include "User.hpp"
@@ -19,6 +20,7 @@ class ProfileManager {
 
     // Load users from persistency
     void loadUsers();
+    std::vector<std::string> getAllUsernames();
 
     bool userExists(std::string username);
     bool follow(std::string follower, std::string userToFollow);

@@ -1,7 +1,7 @@
 #ifndef __Queue_hpp__
 #define __Queue_hpp__
 
-#include <queue>
+#include <deque>
 #include <mutex>
 #include <tuple>
 #include <chrono>
@@ -9,7 +9,7 @@
 
 template <typename T>
 class Queue {
-  std::queue<T> m_queue;
+  std::deque<T> m_queue;
 
   std::mutex m_mutex;
   std::condition_variable m_cv;
@@ -18,8 +18,8 @@ class Queue {
 
     void insert(T element) {
       m_mutex.lock();
-
-      m_queue.push(element);
+      
+      m_queue.push_back(element);
       
       m_mutex.unlock();
       m_cv.notify_one(); // Wake up just one thread waiting for cv.
@@ -33,7 +33,7 @@ class Queue {
         m_cv.wait(lock);
       }
       T element = m_queue.front();
-      m_queue.pop();
+      m_queue.pop_front();
       lock.unlock();
 
       return element;
@@ -45,7 +45,7 @@ class Queue {
       if (m_mutex.try_lock()) {
         if (m_queue.empty() != true) {
           element = std::make_pair(true, m_queue.front());
-          m_queue.pop();
+          m_queue.pop_front();
         }
         m_mutex.unlock();
       }
@@ -63,7 +63,7 @@ class Queue {
       std::pair<bool, T> element = std::make_pair(false, T());
       if (status == std::cv_status::no_timeout) {
         element = std::make_pair(true, m_queue.front());
-        m_queue.pop();
+        m_queue.pop_front();
       } 
       lock.unlock();
 
@@ -76,6 +76,14 @@ class Queue {
       m_mutex.unlock();
 
       return size;
+    }
+
+    std::deque<T> get() const {
+      return m_queue;
+    }
+
+    void set(std::deque<T> queue) {
+      m_queue = queue;
     }
 
 };

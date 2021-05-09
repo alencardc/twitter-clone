@@ -14,6 +14,18 @@ void ProfileManager::loadUsers() {
   m_mutex.unlock();
 }
 
+std::vector<std::string> ProfileManager::getAllUsernames() {
+  m_mutex.lock();
+
+  std::vector<std::string> usernames;
+  for (auto pair : m_users) {
+    usernames.push_back(pair.first);
+  }
+  
+  m_mutex.unlock();
+  return usernames;
+}
+
 bool ProfileManager::userExists(std::string username) {
   m_mutex.lock();
 
@@ -78,7 +90,7 @@ bool ProfileManager::startSession(std::string username, Session session) {
 
     ProfilePersistency db;
     db.saveNewUser(username);
-    success = true;
+    success = onUpdateCallback(*this);
   }
 
   m_mutex.unlock();

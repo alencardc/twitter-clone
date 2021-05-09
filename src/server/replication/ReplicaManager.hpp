@@ -55,11 +55,39 @@ class ReplicaManager {
         this,
         std::placeholders::_1
       );
+      m_notificationManager.onUpdateCallback = std::bind(
+        &ReplicaManager::sendNotificationUpdate,
+        this,
+        std::placeholders::_1
+      );
     }
 
     void start() {
-      if (m_isLeader == true)
+      if (m_isLeader == true) {
         m_profileManager.loadUsers();
+        m_notificationManager.loadUsers(m_profileManager.getAllUsernames());
+      }
+      
+      Notification n;
+      n.id = 10;
+      n.pendingCount = 3;
+      n.timestamp = 123244442;
+      n.username = "@alencar";
+      n.message = "Uma mensagem de teste!";
+
+      Queue<Notification> q;
+      m_notificationManager.subscribe("@alencar", 123124, q);
+      m_notificationManager.send(n, m_profileManager.followersOf("@alencar"));
+      n.message = "Outra mensagem!";
+      m_notificationManager.send(n, m_profileManager.followersOf("@alencar"));
+
+      std::string serialized = m_notificationManager.serialize();
+      printf("%s\n", serialized.c_str());
+      m_notificationManager.deserialize(serialized);
+      printf("\n---------\n%s\n", m_notificationManager.serialize().c_str());
+
+
+      exit(0);
       
       try {
         TCPServer* serverRM = new TCPServer(m_info.ip, m_info.port);
@@ -311,6 +339,25 @@ class ReplicaManager {
         if (isNotEqualToMe) {
           Packet updatePacket = Packet(
             UPDATE_PROFILE, m_profileManager.serialize().c_str()
+          );
+          conn->send(&updatePacket);
+        }
+      }
+
+      return true;
+    }
+
+    bool sendNotificationUpdate(NotificationManager& manager) {
+  
+      printf("[Replica] Send NOTIFICATION update!\n");
+      for (auto replicaPair : m_replicasVector) {
+        TCPConnection* conn = replicaPair.first;
+        ReplicaInfo replica = replicaPair.second;
+        bool isNotEqualToMe = replica.ip != m_info.ip || replica.port != m_info.port;
+
+        if (isNotEqualToMe) {
+          Packet updatePacket = Packet(
+            UPDATE_NOTIFICATION, m_notificationManager.serialize().c_str()
           );
           conn->send(&updatePacket);
         }
