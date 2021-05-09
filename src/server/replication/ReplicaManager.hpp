@@ -7,6 +7,7 @@
 #include <functional>
 #include <condition_variable>
 
+#include "GlobalConfig.hpp"
 #include "lib/SyncAccess.hpp"
 #include "lib/socket/TCPClient.hpp"
 #include "lib/socket/TCPServer.hpp"
@@ -153,6 +154,7 @@ class ReplicaManager {
         if (lostElection.get() == false) { 
           printf("[Replica] I'm the new leader!\n");
           sendCoordinator(); // Notify all connected replicas
+          notifyFrontends();
           m_isLeader = true;
           delete m_leaderConn; m_leaderConn = NULL;
         }
@@ -364,6 +366,19 @@ class ReplicaManager {
       }
 
       return true;
+    }
+
+    void notifyFrontends() {
+      std::string payload = m_info.ip + " " + std::to_string(m_info.port);
+      Packet packet = Packet(NEW_LEADER, payload.c_str());
+      for (auto addr : GlobalConfig::FRONTEND_ADDRESSES) {
+        TCPClient client;
+        TCPConnection* conn = client.connect(addr.ip, addr.port);
+        if (conn != NULL) {
+          conn->send(&packet);
+          delete conn; conn = NULL;
+        }
+      }
     }
 
 };
