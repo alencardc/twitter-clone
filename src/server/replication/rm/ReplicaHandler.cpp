@@ -74,15 +74,19 @@ void* ReplicaHandler::run() {
     
     } else if (request->type() == UPDATE_PROFILE) {
       printf("[Replicas] Received PROFILE update!\n");
+      printf("Received: %s\n\n", request->payload());
       ProfileManager updatedManager;
       updatedManager.deserialize(request->payload());
       m_profileManager.update(updatedManager);
+      printf("[Replicas] Current state:\n%s\n", m_profileManager.serialize().c_str());
     
     } else if (request->type() == UPDATE_NOTIFICATION) {
       printf("[Replicas] Received NOTIFICATION update!\n");
+      printf("Received: %s\n\n", request->payload());
       NotificationManager updatedManager;
       updatedManager.deserialize(request->payload());
       m_notificationManager.update(updatedManager);
+      printf("[Replicas] Current state:\n%s\n", m_notificationManager.serialize().c_str());
     }  
 
     delete request; request = NULL;

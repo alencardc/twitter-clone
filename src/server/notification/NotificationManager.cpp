@@ -124,14 +124,13 @@ void NotificationManager::loadUsers(std::vector<std::string> usernames) {
 }
 
 void NotificationManager::update(NotificationManager& manager) {
+  m_nextId = manager.m_nextId;
   m_pendingQueues = manager.m_pendingQueues;
-  for (auto u : m_pendingQueues) {
-    printf("Update -> user: %s\n", u.first.c_str());
-  }
+  m_notifications = manager.m_notifications;
 }
 
 std::string NotificationManager::serialize() {
-  std::string s = std::to_string(m_nextId) + " ";
+  std::string s = std::to_string(m_nextId) + "\n";
   for (auto userAndNotification : m_notifications) {
     bool first = true;
     s.append(userAndNotification.first + " " + std::to_string(userAndNotification.second.size()) + " ");
@@ -158,7 +157,7 @@ std::string NotificationManager::serialize() {
 void NotificationManager::deserialize(std::string raw) {
   std::unordered_map<std::string, std::list<Notification>> notificationsMap;
 
-  std::vector<std::string> idAndRest = splitFirst(raw, " ");
+  std::vector<std::string> idAndRest = splitFirst(raw, "\n");
 
   if (idAndRest.size() != 2)
     return;
