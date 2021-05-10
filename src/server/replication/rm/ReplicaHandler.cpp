@@ -82,10 +82,15 @@ void* ReplicaHandler::run() {
     
     } else if (request->type() == UPDATE_NOTIFICATION) {
       printf("[Replicas] Received NOTIFICATION update!\n");
+      printf("%s\n\n", request->serialize().c_str());
       printf("Received: %s\n\n", request->payload());
+      printf("1\n");
       NotificationManager updatedManager;
+      printf("2\n");
       updatedManager.deserialize(request->payload());
+      printf("3\n");
       m_notificationManager.update(updatedManager);
+      printf("4\n");
       printf("[Replicas] Current state:\n%s\n", m_notificationManager.serialize().c_str());
     }  
 

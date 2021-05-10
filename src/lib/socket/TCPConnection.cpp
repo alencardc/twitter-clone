@@ -70,9 +70,41 @@ ssize_t TCPConnection::receive(char* buffer, size_t length) {
   return recv(m_socketDescriptor, buffer, length, 0);
 }
 
-Packet* TCPConnection::receive() {
-  char buffer[RECV_BUFFER_SIZE];
+bool TCPConnection::receiveAll(std::string& data, int length) {
+  char buffer[length + 1];
+  char* bufferPtr = buffer;
+  int currLength = length;
 
+  while (currLength > 0) {
+    int bytesReceived = recv(m_socketDescriptor, bufferPtr, currLength, 0);
+    if (bytesReceived < 1)
+      return false;
+    
+    bufferPtr += bytesReceived;
+    currLength -= bytesReceived;
+  }
+  buffer[length] = '\0';
+  data = buffer;
+  return true;
+}
+
+Packet* TCPConnection::receive() {
+
+  std::string sizeStr;
+  bool received = receiveAll(sizeStr, Packet::sizeFieldLength);
+  if (received == true) {
+    int size = std::stoul(sizeStr);
+    std::string packetStr;
+    received = receiveAll(packetStr, size);
+    if (received == true) {
+      packetStr.insert(0, sizeStr);
+      Packet* pkt = Packet::deserialize(packetStr.c_str());
+      return pkt;
+    }
+  }
+
+  return NULL;
+  /*
   if (m_buffer.empty() == false) {
     Packet *packet = Packet::deserialize(m_buffer.c_str());
     if (packet->type() != NO_TYPE) {
@@ -102,7 +134,7 @@ Packet* TCPConnection::receive() {
     }
     return packet;
   }
-  m_buffer.clear();
+  m_buffer.clear();*/
   return NULL;
 }
 

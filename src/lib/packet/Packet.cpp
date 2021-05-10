@@ -64,7 +64,13 @@ std::string Packet::serialize() {
   rawPacket << "\nlength:" << m_length;
   rawPacket << "\n\n" << m_payload;
 
-  return rawPacket.str();
+  std::string strPacket = rawPacket.str();
+  uint32_t totalSize = strPacket.size();
+  char buffSize[10 + 1]; // Size to support max value of uint32
+  sprintf(buffSize, "%010u", totalSize);
+  strPacket.insert(0, buffSize);
+
+  return strPacket;
 }
 
 Packet* Packet::deserialize(const char* rawData) {
@@ -73,7 +79,10 @@ Packet* Packet::deserialize(const char* rawData) {
   long unsigned int timestamp;
   char typeBuffer[30];
 
-  std::vector<std::string> headerAndPayload = splitFirst(rawData, "\n\n");
+  std::string strData = rawData;
+  strData.erase(0, sizeFieldLength);
+
+  std::vector<std::string> headerAndPayload = splitFirst(strData, "\n\n");
   if (headerAndPayload.size() == 2) {
     int amountRead = sscanf(
       headerAndPayload[0].c_str(), 
