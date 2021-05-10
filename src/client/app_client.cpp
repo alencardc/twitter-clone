@@ -9,6 +9,7 @@
 #include "lib/packet/Packet.hpp"
 #include "ConnectionConsumer.hpp"
 #include "lib/Queue.hpp"
+#include "lib/SyncAccess.hpp"
 
 #include "ui/App.hpp"
 #include "ui/Window.hpp"
@@ -85,12 +86,30 @@ int main(int argc, char** argv) {
     responseWindow->addWidget(tlResponse);
     // ----------------------------------------------------------
     
-    ConnectionConsumer packetReceiver = ConnectionConsumer(*connection, *feedList, *tlResponse);
-    packetReceiver.start();
+    SyncAccess<bool> shouldReconnect;
+    shouldReconnect.set(false);
+    ConnectionConsumer* packetReceiver = new ConnectionConsumer(
+      *connection, *feedList, *tlResponse, shouldReconnect
+    );
+    packetReceiver->start();
 
     // Client handle --------------------------------------------
     int screenEvent;
     while ((screenEvent = app.getKeyEvent()) != KEY_F(1)) {
+      if (shouldReconnect.get() == true){
+        delete packetReceiver; packetReceiver = NULL;
+        connection = connectToAnyProvider();
+        if (connection != NULL && tryLogin(username, connection) == true) {
+          tlResponse->setText("Reconnected!");
+          packetReceiver = new ConnectionConsumer(
+            *connection, *feedList, *tlResponse, shouldReconnect
+          );
+          packetReceiver->start();
+        } else
+          tlResponse->setText("Unable to reconnect.");
+        shouldReconnect.set(false);
+      }
+      
       if (screenEvent == 'c') {
         std::string command = textInput->input(*inputWindow);
         handleCommand(command, connection);
