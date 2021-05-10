@@ -62,6 +62,9 @@ void* ClientHandler::run() {
     delete request; request = NULL;
   } 
 
+  m_clientConn->close();
+  m_serverConn->close();
+
   printf("[Front-end] Connection handler ended\n");
   // Connection ended
   isFinished = true;
