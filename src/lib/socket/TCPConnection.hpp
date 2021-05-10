@@ -38,6 +38,7 @@ class TCPConnection {
   private:
     TCPConnection(int socket, std::string ipAddress, int portNumber);
 
+    bool receiveAll(std::string& data, int length);
     Packet* breakPayload(Packet* packet);
 };
 

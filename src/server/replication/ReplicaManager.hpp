@@ -52,7 +52,7 @@ class ReplicaManager {
     {
       // Bind callbacks
       m_profileManager.onUpdateCallback = std::bind(
-        &ReplicaManager::sendUpdateToReplicas,
+        &ReplicaManager::sendProfileUpdate,
         this,
         std::placeholders::_1
       );
@@ -68,6 +68,12 @@ class ReplicaManager {
         m_profileManager.loadUsers();
         m_notificationManager.loadUsers(m_profileManager.getAllUsernames());
       }
+
+      // Packet packet = Packet(UPDATE_NOTIFICATION, "ALocacasdasf\n jaksjfsaf\n");
+      // printf("Serialized:\n%s\n---\n", packet.serialize().c_str());
+      // Packet* rcvPacket = Packet::deserialize(packet.serialize().c_str());
+      // printf("Deserialized:\n%s\n---\n", rcvPacket->serialize().c_str());
+      // exit(0);
       
       // Notification n;
       // n.id = 10;
@@ -199,6 +205,18 @@ class ReplicaManager {
           std::vector<ReplicaInfo> replicasInfo;
           extract_second(m_replicasVector, replicasInfo);
           sendState(conn, newReplica, replicasInfo);
+          // Send PrfileManager and NotificationManager update
+          Packet updatePacket1 = Packet(
+            UPDATE_PROFILE, m_profileManager.serialize().c_str()
+          );
+          conn->send(&updatePacket1);
+          Packet updatePacket2 = Packet(
+            UPDATE_NOTIFICATION, m_notificationManager.serialize().c_str()
+          );
+          int size = conn->send(&updatePacket2);
+          std::string packet = updatePacket2.serialize();
+          printf("Size: %ld Sent: %d\n",packet.size(), size);
+          printf("%s\n",packet.c_str());
         }
 
         m_replicasVector.push_back(std::make_pair(conn, newReplica));
@@ -330,7 +348,7 @@ class ReplicaManager {
       conn->send(&statePacket);
     }
 
-    bool sendUpdateToReplicas(ProfileManager& manager) {
+    bool sendProfileUpdate(ProfileManager& manager) {
   
       printf("[Replica] Send PROFILE update!\n");
       for (auto replicaPair : m_replicasVector) {

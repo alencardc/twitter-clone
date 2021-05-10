@@ -37,6 +37,8 @@ class Packet {
   public:
     friend class TCPConnection;
 
+    static const int sizeFieldLength = 10; // Char lenght of uint32 max value
+
     Packet(PacketType type, Serializable* data);
     Packet(PacketType type, const char* payload);
     ~Packet();
