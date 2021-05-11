@@ -9,6 +9,7 @@ ClientHandler::ClientHandler(
   m_clientConn(clientConn),
   m_serverConn(serverConn),
   m_shouldRestablish(shouldRestablish),
+  m_serverConsumer(NULL),
   isFinished(true)
 {}
 
@@ -23,49 +24,67 @@ void ClientHandler::setServerConnection(TCPConnection* conn) {
   m_mutex.unlock();
 }
 
+void ClientHandler::restartServerConsumer() {
+  if (m_serverConsumer != NULL) {
+    delete m_serverConsumer;
+  }
+  m_serverConsumer = new ServerConsumer(
+    m_clientConn, m_serverConn, m_shouldRestablish, m_mutex
+  );
+  m_serverConsumer->start();
+}
+
 void* ClientHandler::run() {
   if (m_clientConn == NULL)
     return NULL;
   
-  printf("[Front-end] Connection handler started\n");
+  ServerConsumer* serverConsumer = new ServerConsumer(
+    m_clientConn, m_serverConn, m_shouldRestablish, m_mutex
+  );
+  serverConsumer->start();
+
+  printf("[Front-end][ClientHandler] Connection handler started\n");
   isFinished = false;
 
   Packet* request = NULL;
   while ((request = m_clientConn->receive()) != NULL) {
-    m_mutex.lock();
 
     if (request->type() == LOGIN) {
       username = request->payload();
     }
 
-    if (m_serverConn == NULL || m_shouldRestablish.get() == true) {
-      if (request->type() == NEW_LEADER) {
-        m_shouldRestablish.set(true);
-      } else {
-        Packet errorReponse = Packet(ERROR, "Connection lost. Please, retry in a few seconds.");
-        m_clientConn->send(&errorReponse);
-      }
+    printf("[Front-end][ClientHandler][%s] Received a %s packet from CLIENT\n",
+      username.c_str(),
+      request->typeString().c_str()
+    );
+
+    m_mutex.lock();
+    if (request->type() == NEW_LEADER) {
+      m_shouldRestablish.set(true);
+    } else if (m_serverConn == NULL || m_shouldRestablish.get() == true) {
+      Packet errorReponse = Packet(ERROR, "Connection lost. Please, retry in a few seconds.");
+      m_clientConn->send(&errorReponse);
     } else {
       m_serverConn->send(request);
-
-      Packet* response = m_serverConn->receive();
-
-      if (response == NULL) { // Connection lost
-        m_serverConn = NULL;
-      } else {
-        m_clientConn->send(response);
-        delete response; response = NULL;
-      }
     }
-    
     m_mutex.unlock();
     delete request; request = NULL;
-  } 
+  }
+  printf("[Front-end][ClientHandler][%s] Lost client connection...\n", username.c_str());
 
   m_clientConn->close();
-  m_serverConn->close();
+  if (m_serverConn != NULL) {
+    Packet closePacket = Packet(CLOSE, "");
+    m_serverConn->send(&closePacket);
+    m_serverConn->close();
+  }
 
-  printf("[Front-end] Connection handler ended\n");
+  serverConsumer->join();
+  delete serverConsumer;
+
+  printf("[Front-end][ClientHandler][%s] Connection handler ended\n",
+    username.c_str()
+  );
   // Connection ended
   isFinished = true;
   return NULL;

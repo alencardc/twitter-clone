@@ -23,6 +23,7 @@ enum PacketType {
   FOLLOW,
   SUCCESS,
   ERROR,
+  CLOSE,
   NO_TYPE,
 };
 

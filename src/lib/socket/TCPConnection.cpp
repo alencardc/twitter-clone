@@ -104,38 +104,6 @@ Packet* TCPConnection::receive() {
   }
 
   return NULL;
-  /*
-  if (m_buffer.empty() == false) {
-    Packet *packet = Packet::deserialize(m_buffer.c_str());
-    if (packet->type() != NO_TYPE) {
-      m_buffer.erase(0, m_buffer.size());
-      packet = breakPayload(packet);
-      return packet;
-    } else if(m_buffer.find("type:") != 0) {
-      m_buffer.clear();
-    }
-  }
-
-  int length = recv(m_socketDescriptor, buffer, sizeof(buffer)-1, 0);
-  if (length > 0) {
-    buffer[length] = '\0';
-    Packet *packet = Packet::deserialize(buffer);
-    if (packet->type() != NO_TYPE) {
-      packet = breakPayload(packet);
-    } else if (m_buffer.empty() == false) {
-      m_buffer.append(buffer);
-      packet = Packet::deserialize(m_buffer.c_str());
-      if (packet->type() != NO_TYPE) {
-        m_buffer.erase(0, m_buffer.size());
-        packet = breakPayload(packet);
-      } else {
-        m_buffer.clear();
-      }
-    }
-    return packet;
-  }
-  m_buffer.clear();*/
-  return NULL;
 }
 
 Packet* TCPConnection::receive(int milliTimeout) {

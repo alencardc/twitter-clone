@@ -134,6 +134,8 @@ const char* Packet::typeToString(PacketType type) {
       return "ERROR";
     case DATA:
       return "DATA";
+    case CLOSE:
+      return "CLOSE";
     default:
       return "NO_TYPE";
   }
@@ -175,6 +177,8 @@ PacketType Packet::stringToType(const char* buffer) {
     return ERROR;
   else if (s == "DATA")
     return DATA;
+  else if (s == "CLOSE")
+    return CLOSE;
   else 
     return NO_TYPE;
 }
