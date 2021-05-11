@@ -2,11 +2,14 @@
 #include <iostream>
 #include <algorithm>
 #include <stdlib.h>
+
+#include "GlobalConfig.hpp"
 #include "lib/utils/string.hpp"
 #include "lib/socket/TCPClient.hpp"
 #include "lib/packet/Packet.hpp"
 #include "ConnectionConsumer.hpp"
 #include "lib/Queue.hpp"
+#include "lib/SyncAccess.hpp"
 
 #include "ui/App.hpp"
 #include "ui/Window.hpp"
@@ -23,22 +26,20 @@ bool tryLogin(std::string username, TCPConnection* connection);
 void handleNotificationWindow(App& app, Window& window, NotificationList& list);
 void handleCommand(std::string command, TCPConnection* connection);
 bool usernameIsValid(std::string username);
+TCPConnection* connectToAnyProvider();
 
 int main(int argc, char** argv) {
-  if (argc != 4) { 
-    printf("Invalid parameters. Usage: %s <ip> <port> <username>\n", argv[0]);
-    return 1;
+  if (argc != 2) { 
+    printf("Invalid parameters. Usage: %s <username>\n", argv[0]);
+    return -1;
   }
 
-  std::string ip = argv[1];
-  int port = atoi(argv[2]);
-  std::string username = argv[3];
+  std::string username = argv[1];
 
-  TCPClient* client = new TCPClient();
-  TCPConnection* connection = client->connect(ip, port);
+  TCPConnection* connection = connectToAnyProvider();
   if (connection == NULL) {
     printf("Unable establish a connection with the server.\n");
-    return 1;
+    return -1;
   }
   
   if (tryLogin(username, connection) == true) {
@@ -85,12 +86,30 @@ int main(int argc, char** argv) {
     responseWindow->addWidget(tlResponse);
     // ----------------------------------------------------------
     
-    ConnectionConsumer packetReceiver = ConnectionConsumer(*connection, *feedList, *tlResponse);
-    packetReceiver.start();
+    SyncAccess<bool> shouldReconnect;
+    shouldReconnect.set(false);
+    ConnectionConsumer* packetReceiver = new ConnectionConsumer(
+      *connection, *feedList, *tlResponse, shouldReconnect
+    );
+    packetReceiver->start();
 
     // Client handle --------------------------------------------
     int screenEvent;
     while ((screenEvent = app.getKeyEvent()) != KEY_F(1)) {
+      if (shouldReconnect.get() == true){
+        delete packetReceiver; packetReceiver = NULL;
+        connection = connectToAnyProvider();
+        if (connection != NULL && tryLogin(username, connection) == true) {
+          tlResponse->setText("Reconnected!");
+          packetReceiver = new ConnectionConsumer(
+            *connection, *feedList, *tlResponse, shouldReconnect
+          );
+          packetReceiver->start();
+        } else
+          tlResponse->setText("Unable to reconnect.");
+        shouldReconnect.set(false);
+      }
+      
       if (screenEvent == 'c') {
         std::string command = textInput->input(*inputWindow);
         handleCommand(command, connection);
@@ -161,4 +180,24 @@ bool usernameIsValid(std::string username) {
 
   return (username.size() >= MIN_SIZE_USERNAME+1 
         && username.size() <= MAX_SIZE_USERNAME+1);
+}
+
+TCPConnection* connectToAnyProvider() {
+  TCPClient client = TCPClient();
+  TCPConnection* connection = NULL;
+
+  srand(time(NULL));
+  unsigned tries = 0;
+  unsigned idxCurr = rand() % GlobalConfig::FRONTEND_ADDRESSES.size();
+  while (connection == NULL && tries < GlobalConfig::FRONTEND_ADDRESSES.size()) {
+    unsigned idxAddr = idxCurr % GlobalConfig::FRONTEND_ADDRESSES.size();
+
+    auto addr = GlobalConfig::FRONTEND_ADDRESSES[idxAddr];
+    connection = client.connect(addr.ip, addr.port);
+
+    tries += 1;
+    idxCurr += 1;
+  }
+
+  return connection;
 }

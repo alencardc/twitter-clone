@@ -62,6 +62,8 @@ void* ConnectionHandler::run() {
         response = route.execute();
       } else if (request->type() == LOGIN) {
         response = new Packet(ERROR, "Already logged in.");
+      } else if (request->type() == CLOSE) {
+        break;
       } else { // SUCCESS, ERROR, NO_TYPE or undefined
         response = new Packet(ERROR, "Bad request.");
       }
@@ -76,7 +78,7 @@ void* ConnectionHandler::run() {
       delete request;
       delete response;
     }
-
+    
     consumerThread->stop();
     consumerThread->join();
     delete consumerThread;

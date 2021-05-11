@@ -8,3 +8,7 @@ Session::Session(long unsigned int threadId, std::string username) {
 long unsigned int Session::id() {
   return m_threadId;
 }
+
+std::string Session::serialize() {
+  return std::to_string(m_threadId) + " " + m_username;
+}

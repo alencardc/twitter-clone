@@ -5,12 +5,25 @@
 #include "Serializable.hpp"
 
 enum PacketType {
+  ACK,
+  ANSWER,
+  IS_ALIVE,
+  SERVER_DOWN,
+  NEW_REPLICA,
+  REPLICAS,
+  NEW_LEADER,
+  ELECTION,
+  COORDINATOR,
+  UPDATE_PROFILE,
+  UPDATE_NOTIFICATION,
+
   DATA,
   SEND,
   LOGIN,
   FOLLOW,
   SUCCESS,
   ERROR,
+  CLOSE,
   NO_TYPE,
 };
 
@@ -24,6 +37,8 @@ class Packet {
 
   public:
     friend class TCPConnection;
+
+    static const int sizeFieldLength = 10; // Char lenght of uint32 max value
 
     Packet(PacketType type, Serializable* data);
     Packet(PacketType type, const char* payload);

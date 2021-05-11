@@ -22,6 +22,7 @@ class User {
     int id();
     std::string username();
     std::list<std::string> followers();
+    bool isValid();
 
     bool addFollower(std::string follower);
 
@@ -29,6 +30,9 @@ class User {
     std::list<Session> sessions();
     bool addSession(Session session);
     void removeSession(long unsigned int id);
+
+    std::string serialize();
+    void deserialize(std::string raw);
 };
 
 #endif // __User_hpp__

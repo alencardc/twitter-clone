@@ -10,6 +10,8 @@ class Session {
   public:
     Session(long unsigned int threadId, std::string username);
     long unsigned int id();
+
+    std::string serialize();
 };
 
 #endif // __Session_hpp__

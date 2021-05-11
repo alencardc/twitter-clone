@@ -10,6 +10,9 @@ class PendingNotification {
 
     PendingNotification();
     PendingNotification(std::string username, int id);
+
+    std::string serialize();
+    void deserialize(std::string raw);
 };
 
 #endif // __PendingNotification_hpp__

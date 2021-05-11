@@ -1,3 +1,5 @@
+#include <deque>
+#include <sstream>
 #include "NotificationQueue.hpp"
 
 // Returns true if Notification was delivered to subscribers
@@ -51,4 +53,35 @@ void NotificationQueue::unsubscribe(long unsigned id) {
   if (m_subscribersQueue.count(id) == 1) {
     m_subscribersQueue.erase(id);
   }
+}
+
+std::string NotificationQueue::serialize() {
+  std::deque<PendingNotification> pendingQueue = m_pendingQueue.get();
+  std::string s = std::to_string(pendingQueue.size());
+  for (PendingNotification pending : pendingQueue) {
+    std::string strPending = pending.serialize();
+    s.append(" " + std::to_string(strPending.size()) + " " + strPending);
+  }
+  return s;
+}
+
+void NotificationQueue::deserialize(std::string raw) {
+  std::istringstream stream(raw);
+  int size;
+  stream >> size;
+  
+  std::deque<PendingNotification> pendingQueue;
+  for (int i = 0; i < size; i++) {
+    int length;
+    stream >> length;
+    stream.ignore(1);
+    char buff[length];
+    stream.read(buff, length);
+    buff[length] = '\0';
+    PendingNotification pending;
+    pending.deserialize(buff);
+    pendingQueue.push_back(pending);
+  }
+
+  m_pendingQueue.set(pendingQueue);
 }

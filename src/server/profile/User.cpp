@@ -1,4 +1,5 @@
 #include <algorithm>
+#include "lib/utils/string.hpp"
 #include "User.hpp"
 
 User::User() {
@@ -73,4 +74,45 @@ void User::removeSession(long unsigned int id) {
       m_sessions.pop_back();
     }
   }
+}
+
+bool User::isValid() {
+  return m_id > 0 && m_username.size() > 0;
+}
+
+std::string User::serialize() {
+  std::string s;
+  s.append(std::to_string(m_id) + " " + m_username + " ");
+  s.append(std::to_string(m_followers.size()) + " ");
+  s.append(joinStringList(m_followers, ","));
+  s.append(" " + std::to_string(m_sessions.size()) + " ");
+  bool first = true;
+  for (Session session : m_sessions) {
+    if (first) {
+      first = false;
+      s.append(session.serialize());
+    } else
+      s.append("," + session.serialize());
+  }
+  return s;
+}
+
+void User::deserialize(std::string raw) {
+  std::vector<std::string> splits = split(raw, " ");
+  if (splits.size() < 6)
+    return;
+  
+  m_id = std::stoi(splits[0]);
+  m_username = splits[1];
+
+  int followersSize = std::stoi(splits[2]);
+  if (followersSize > 0) {
+    m_followers.clear();
+    std::vector<std::string> followers = split(splits[3], ",");
+    for (unsigned i = 0; i < followers.size(); i++) {
+      m_followers.push_back(followers[i]);
+    }
+  }
+  
+  // Sessions
 }

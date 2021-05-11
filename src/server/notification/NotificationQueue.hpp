@@ -12,7 +12,10 @@ class NotificationQueue {
 
   public:
     NotificationQueue() = default;
-    NotificationQueue(const NotificationQueue&) {} // TODO: Check this constructors
+    NotificationQueue(const NotificationQueue& nq) {
+      m_subscribersQueue = nq.m_subscribersQueue;
+      m_pendingQueue.set(nq.m_pendingQueue.get());
+    } // TODO: Check this constructors
     ~NotificationQueue() = default;
 
     // Returns true if Notification was delivered to subscribers
@@ -28,6 +31,9 @@ class NotificationQueue {
     void subscribe(long unsigned id, Queue<Notification>& queue);
 
     void unsubscribe(long unsigned id);
+
+    std::string serialize();
+    void deserialize(std::string raw);
 
 };
 
