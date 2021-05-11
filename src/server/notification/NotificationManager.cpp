@@ -90,6 +90,7 @@ void NotificationManager::subscribe(
     m_pendingQueues.emplace(username, notificationQueue);
     m_pendingQueues[username].subscribe(id, queue);
   }
+  onUpdateCallback(*this);
 
   m_mutex.unlock();
 }
@@ -99,6 +100,7 @@ void NotificationManager::unsubscribe(std::string username, long unsigned id) {
   if (m_pendingQueues.count(username) == 1) {
     m_pendingQueues[username].unsubscribe(id);
   }
+  onUpdateCallback(*this);
   m_mutex.unlock();
 }
 
