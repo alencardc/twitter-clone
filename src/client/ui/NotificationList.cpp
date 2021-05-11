@@ -45,7 +45,6 @@ int NotificationList::itemsPerPage() {
 
 void NotificationList::draw(Window &win) {
   m_mutex.lock();
-  printf("Size: %ld\n", m_list.size());
   int i = 0;
   auto it = m_list.begin();
   std::advance(it, m_showingBegin);
