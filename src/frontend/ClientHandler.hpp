@@ -6,6 +6,7 @@
 #include "lib/Thread.hpp"
 #include "lib/SyncAccess.hpp"
 #include "lib/socket/TCPConnection.hpp"
+#include "frontend/ServerConsumer.hpp"
 
 class ClientHandler : public Thread {
   TCPConnection* m_clientConn;
@@ -13,6 +14,8 @@ class ClientHandler : public Thread {
   SyncAccess<bool>& m_shouldRestablish;
 
   std::mutex m_mutex;
+
+  ServerConsumer* m_serverConsumer;
 
   public:
     std::string username;
@@ -25,6 +28,7 @@ class ClientHandler : public Thread {
     );
 
     void setServerConnection(TCPConnection* conn);
+    void restartServerConsumer();
 
   private:
     void* run();

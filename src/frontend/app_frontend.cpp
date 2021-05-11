@@ -10,6 +10,7 @@
 
 TCPServer* startServerInAnyAddress();
 void restablishConnections(std::vector<ClientHandler*>& clientHandlers);
+bool clientConnectionIsClosed(ClientHandler* handler);
 
 
 int main() {
@@ -29,6 +30,7 @@ int main() {
   shouldRestablish.set(false);
   while (true) {
     if (shouldRestablish.get() == true) {
+      printf("[Front-end] Restablishing connections...\n");
       restablishConnections(clientHandlers);
       shouldRestablish.set(false);
     }
@@ -92,8 +94,10 @@ void restablishConnections(std::vector<ClientHandler*>& clientHandlers) {
     std::remove_if(clientHandlers.begin(), clientHandlers.end(), clientConnectionIsClosed),
     clientHandlers.end()
   );
+  printf("Restablishing...\n");
   // Restablish connections
   for (ClientHandler* handler : clientHandlers) {
+    printf("Restablished\n");
     TCPClient client;
     TCPConnection* serverConn = client.connect(
       GlobalConfig::SERVER_ADDR.ip, GlobalConfig::SERVER_ADDR.port
@@ -103,5 +107,6 @@ void restablishConnections(std::vector<ClientHandler*>& clientHandlers) {
       serverConn->send(&reconnectionPacket);
     }
     handler->setServerConnection(serverConn);
+    handler->restartServerConsumer();
   }
 }

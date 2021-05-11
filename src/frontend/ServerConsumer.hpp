@@ -9,7 +9,7 @@
 
 class ServerConsumer : public Thread {
   TCPConnection* m_clientConn;
-  TCPConnection* m_serverConn;
+  TCPConnection*& m_serverConn;
   SyncAccess<bool>& m_shouldRestablish;
   std::mutex& m_mutex;
 
@@ -17,7 +17,7 @@ class ServerConsumer : public Thread {
 
     ServerConsumer(
       TCPConnection* clientConn,
-      TCPConnection* serverConn,
+      TCPConnection*& serverConn,
       SyncAccess<bool>& shouldRestablish,
       std::mutex& mutex
     );
