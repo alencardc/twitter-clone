@@ -88,7 +88,7 @@ void ReplicaManager::run(TCPServer* serverRM) {
     while (startElection.get() == false) {
       TCPConnection* conn = serverRM->accept(800);
       if (conn != NULL) {
-        printf("[Replica] Received a new connection\n");
+        printf("[ReplicaManager] Received a new connection\n");
         removeClosedConnections(m_replicasVector);
         answerStartHandshake(conn, startElection, lostElection, electionMutex, receivedAnswerCV);
       }
@@ -98,14 +98,13 @@ void ReplicaManager::run(TCPServer* serverRM) {
 
     // Do the election
 
-    printf("I am going to send ELECTION to %ld replicas\n", m_replicasVector.size());
     sendElection(lostElection, electionMutex, receivedAnswerCV);
 
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     // If I didn`t lost to any other replica, then I'm the new leader
     if (lostElection.get() == false) { 
-      printf("[Replica] I'm the new leader!\n");
+      printf("[ReplicaManager] I'm the new leader!\n");
       sendCoordinator(); // Notify all connected replicas
       notifyFrontends();
       m_isLeader = true;
@@ -127,12 +126,12 @@ void ReplicaManager::runStartHandshake(SyncAccess<bool>& startElection, SyncAcce
 
   // Start connection with online replicas
   for (ReplicaInfo replica : replicas) {
-    printf("[Replica] Tried to connect to <%s>\n", replica.serialize().c_str());
+    printf("[ReplicaManager] Tried to connect to <%s>\n", replica.serialize().c_str());
 
     TCPClient client;
     TCPConnection* conn = client.connect(replica.ip, replica.port);
     if (conn != NULL) {
-      printf("[Replica] Connected to <%s>\n", replica.serialize().c_str());
+      printf("[ReplicaManager] Connected to <%s>\n", replica.serialize().c_str());
       sendHello(conn, m_info);
       m_replicasVector.push_back(std::make_pair(conn, replica));
 
@@ -160,24 +159,20 @@ void ReplicaManager::answerStartHandshake(TCPConnection* conn, SyncAccess<bool>&
       Packet updatePacket2 = Packet(
         UPDATE_NOTIFICATION, m_notificationManager.serialize().c_str()
       );
-      int size = conn->send(&updatePacket2);
-      std::string packet = updatePacket2.serialize();
-      printf("Size: %ld Sent: %d\n",packet.size(), size);
-      printf("%s\n",packet.c_str());
+      conn->send(&updatePacket2);
     }
 
     m_replicasVector.push_back(std::make_pair(conn, newReplica));
 
     std::vector<ReplicaInfo> replicas;
     extract_second(m_replicasVector, replicas);
-    printf("%s\n", serialize(replicas).c_str());
 
     ReplicaHandler* handler = new ReplicaHandler(
       conn, m_info, m_profileManager, m_notificationManager,
       startElection, false, lostElection, mutex, cv);
     handler->start();
   } else {
-    printf("[Replica] Replica was invalid, closing connection...\n");
+    printf("[ReplicaManager] Replica was invalid, closing connection...\n");
     delete conn; conn = NULL;
   }
 }
@@ -191,6 +186,7 @@ void ReplicaManager::sendElection(SyncAccess<bool>& lostElection, std::mutex& el
 
     if (isNotEqualToMe && isGreaterThanMe) {
       Packet electionPacket = Packet(ELECTION, m_info.serialize().c_str());
+      printf("[ReplicaManager] Sent ELECTION to <%s>\n", replica.serialize().c_str());
       conn->send(&electionPacket);
 
       std::unique_lock<std::mutex> lock(electionMutex);

@@ -110,9 +110,6 @@ void ProfileManager::closeSession(std::string username, long unsigned int id) {
 
 void ProfileManager::update(ProfileManager& manager) {
   m_users = manager.m_users;
-  for (auto u : m_users) {
-    printf("Update -> user: %s\n", u.first.c_str());
-  }
 }
 
 std::string ProfileManager::serialize() {

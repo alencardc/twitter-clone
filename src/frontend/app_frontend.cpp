@@ -94,10 +94,9 @@ void restablishConnections(std::vector<ClientHandler*>& clientHandlers) {
     std::remove_if(clientHandlers.begin(), clientHandlers.end(), clientConnectionIsClosed),
     clientHandlers.end()
   );
-  printf("Restablishing...\n");
+  printf("[Front-end] Restablishing...\n");
   // Restablish connections
   for (ClientHandler* handler : clientHandlers) {
-    printf("Restablished\n");
     TCPClient client;
     TCPConnection* serverConn = client.connect(
       GlobalConfig::SERVER_ADDR.ip, GlobalConfig::SERVER_ADDR.port
